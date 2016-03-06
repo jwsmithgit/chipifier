@@ -1,3 +1,8 @@
+'''
+COMPOSITION class
+a composition is a collection of notes for one instrument
+'''
+
 import note
 
 class Composition {

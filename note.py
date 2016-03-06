@@ -1,3 +1,8 @@
+'''
+NOTE class
+a note is a sound that is made for a duration of time at a certain frequency
+'''
+
 class Note {
 	# CONSTRUCTORS
 	def __init__( self ) :

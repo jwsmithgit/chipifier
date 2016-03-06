@@ -1,6 +1,6 @@
-import transriber.py
-import nesmidi.py
-import generatesound.py
+import sonic_scanner
+import retro_conformer
+import wave_generator
 
 if __name__ == "__main__" :
     print("MAIN")

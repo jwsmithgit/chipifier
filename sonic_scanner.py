@@ -1,4 +1,5 @@
 import wave
+import math
 import cmath
 
 import numpy as np
@@ -17,9 +18,51 @@ def create_note( freq, seg_num, ampl ):
     end_time = start_time + SEGMENT_SIZE-1
     return note.Note( start_time, end_time, freq, ampl )
 
-def scan() :
+# create FFT estimation
+def fft_frequency( data, fs ) :
+    windowed = data * signal.hamming( len(data) )
+
+    fft_data = fft( windowed )
+
+    bin_i = np.argmax( abs(fft_data) )
+    frequency = bin_i * ( fs / len(fft_data) )
+
+    return frequency
+
+def fft_amplitude( data ) :
+    fft_data = fft( data ) / len(data)
+
+    amplitude = 0
+    for i in range(len(fft_data)//2) :
+        # the amplitude is the radius retrieved form real number and imaginary number
+        complex_coordinate = abs(fft_data[i]) #np.amax( abs(fft_data) )
+        amplitude += cmath.polar( complex_coordinate )[0]
+
+    return amplitude
+
+# create overlapping windows estimation
+
+# create autocorrelation estimation
+def autocorrelation_frequency( data, fs ) :
+    variance = np.var( data )
+    mean = np.mean( data )
+    data = np.subtract( data, mean )
+
+    # time lag function
+    corr = signal.fftconvolve( data, data[::-1], mode='full' )
+    #just take positives
+    corr = corr[-len(data):]
+
+    d = np.diff(corr)
+    start = np.where(d > 0)[0][0]
+    i_peak = np.argmax( corr[start:] ) + start
+    frequency = fs / i_peak
+
+    return frequency
+
+def scan( filename ) :
     print( "Freq detection" )
-    wave_ifile = wave.open( 'sound1.wav', 'r' )
+    wave_ifile = wave.open( filename, 'r' )
     frame_rate = wave_ifile.getframerate()
     comp = composition.Composition()
     segment_num = 0
@@ -30,21 +73,10 @@ def scan() :
             break
 
         data = np.fromstring( iframes, np.int16 )
-        windowed = data * signal.hamming( len(data) )
+        frequency = autocorrelation_frequency( data, frame_rate )
+        amplitude = fft_amplitude( data )
 
-        fft_data = fft( windowed )
-        bin_number = np.argmax( abs(fft_data) )
-
-        freq = bin_number * ( frame_rate / SEGMENT_SIZE ) 
-	# need to crush to musical notes
-	# A0 is 27.5 all steps are multiplied by 12root(2) or 1.0594 steps up until A9 14080
-	# see monophonic pitch slide 24
-
-	# the amplitude is the radius retrieved form real number and imaginary number
-        complex_coordinate = fft_data[bin_number] # * ( 10 / SEGMENT_SIZE )
-        amplitude = cmath.polar( complex_coordinate )[0]
-
-        comp.add_note( create_note( freq, segment_num, amplitude ) )
+        comp.add_note( create_note( frequency, segment_num, amplitude ) )
         segment_num += 1
 
     wave_ifile.close()
@@ -52,4 +84,4 @@ def scan() :
     return comp
 
 if __name__ == "__main__" :
-    scan()
+    scan( 'sound1.wav' )

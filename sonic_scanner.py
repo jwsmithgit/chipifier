@@ -8,6 +8,7 @@ BUFFER_SIZE = 1024
 WINDOW_SIZE = 1024
 
 if __name__ == "__main__" :
+<<<<<<< HEAD
     print("Freq detection")
     wave_ifile = wave.open('sound1.wav', 'r')
     print( wave_ifile.getparams() )
@@ -32,3 +33,6 @@ if __name__ == "__main__" :
 
 
 
+=======
+	print("TRANSCRIBER")
+>>>>>>> origin/master

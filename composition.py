@@ -6,12 +6,9 @@ a composition is a collection of notes for one instrument
 import note
 
 class Composition :
-	def __init__( self ) :
+	def __init__( self, notes=[ ] ) :
 		self.tempo = -1
-		self.notes = [ ]
-
-	def __init__( self, notes ) :
-		self.notes += notes
+		self.notes = notes
 
 	# add notes to composition
 	def add_note( self, note ) :

@@ -52,7 +52,6 @@ def write_to_file( data, filename, params ):
 
 def generate( composition, style="square" ) :
     notes = composition.notes
-    print( composition )
     wave = np.array([])
     for note in notes :
         length = note.end_time - note.start_time

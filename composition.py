@@ -10,23 +10,13 @@ class Composition :
         self.tempo = -1
         self.notes = notes
 
-<<<<<<< Updated upstream
-    # add notes to composition
-    def add_note( self, note ) :
-        self.notes += note
-
-    # add notes to composition
-    def add_notes( self, notes ) :
-        self.notes += notes
-=======
 	# add notes to composition
 	def add_note( self, note ) :
 		self.notes.append(note)
 
 	# add notes to composition
 	def add_notes( self, notes ) :
-		self.notes.append(notes)
->>>>>>> Stashed changes
+		self.notes += notes
 
     # remove a note from the composition
     def remove_note( self, note ) :

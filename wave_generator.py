@@ -37,7 +37,7 @@ def noise_wave( length, amplitude ) :
     return t
 
 def mix_waves( waves ):
-    mix = np.zeros[len(waves[0])]
+    mix = np.zeros(len(waves[0]))
     for wave in waves :
         mix = np.add(mix,wave)
     return mix
@@ -49,11 +49,14 @@ def write_to_file( data, filename, params ):
 
 def generate( composition ) :
     notes = composition.notes
-    print( composition )
+    #print( composition )
     s_wave = np.array([])
     for note in notes :
         length = note.end_time - note.start_time
-        s_wave = np.concatenate( (s_wave, square_wave(1024, 10000, 1/(note.frequency/44100))) )
+        if note.frequency == 0 :
+            s_wave = np.concatenate( (s_wave, np.zeros(length)) )
+        else :
+            s_wave = np.concatenate( (s_wave, square_wave(length, note.amplitude, 1/(note.frequency/44100))) )
     params = (1, 2, 44100, len(s_wave), 'NONE', 'not compressed')
     write_to_file(s_wave, 'chiptune.wav', params)
 
@@ -62,12 +65,14 @@ def generate( composition ) :
 if __name__ == "__main__" :
     s_wave = np.array([])
     t_wave = np.array([])
-    i = 100
+
     for i in range(100,4000,10):
         s_wave = np.concatenate( (s_wave, square_wave(44100/100, 10000, 1/(i/44100))) )
         t_wave = np.concatenate( (t_wave, triangle_wave(44100/100, 10000, 1/(i/44100))) )
 
-    n_wave = noise_wave( 44100*10, 10000 )
+    s_wave = square_wave(44100*5, 10000, 1/(440/44100))
+    t_wave = triangle_wave(44100*5, 10000, 1/(440/44100))
+    n_wave = noise_wave( 44100*5, 10000 )
 
     params = (1, 2, 44100, len(n_wave), 'NONE', 'not compressed')
     write_to_file(s_wave, 'square.wav', params)

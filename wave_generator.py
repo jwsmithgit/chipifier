@@ -49,11 +49,11 @@ def write_to_file( data, filename, params ):
 
 def generate( composition ) :
     notes = composition.notes
-    #print( composition )
+    print( composition )
     s_wave = np.array([])
     for note in notes :
         length = note.end_time - note.start_time
-        if note.frequency == 0 :
+        if note.frequency < 1 :
             s_wave = np.concatenate( (s_wave, np.zeros(length)) )
         else :
             s_wave = np.concatenate( (s_wave, square_wave(length, note.amplitude, 1/(note.frequency/44100))) )

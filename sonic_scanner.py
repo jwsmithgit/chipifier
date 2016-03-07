@@ -44,19 +44,21 @@ def fft_amplitude( data ) :
 
 # create autocorrelation estimation
 def autocorrelation_frequency( data, fs ) :
-    variance = np.var( data )
     mean = np.mean( data )
     data = np.subtract( data, mean )
 
-    # time lag function
-    corr = signal.fftconvolve( data, data[::-1], mode='full' )
-    #just take positives
+    # time lag multiplyer
+    corr = signal.fftconvolve( data, data[::-1] )
+    # only want the end of the data, where it tapers
     corr = corr[-len(data):]
 
-    d = np.diff(corr)
-    start = np.where(d > 0)[0][0]
-    i_peak = np.argmax( corr[start:] ) + start
-    frequency = fs / i_peak
+    # want bin number of first positive number
+    variance = np.diff(corr)
+    start = np.where(variance > 0)[0][0]
+    bin_i = np.argmax( corr[start:] ) + start
+
+    # sampling rate / bin number(peak)
+    frequency = fs / bin_i
 
     return frequency
 

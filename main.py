@@ -3,5 +3,5 @@ import retro_conformer
 import wave_generator
 
 if __name__ == "__main__" :
-    composition = sonic_scanner.scan( 'sound1.wav' )
+    composition = sonic_scanner.scan( 'sound.wav' )
     wave_generator.generate( composition )

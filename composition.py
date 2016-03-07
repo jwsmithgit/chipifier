@@ -3,6 +3,10 @@ COMPOSITION class
 a composition is a collection of notes for one instrument
 '''
 
+# need function to crush to musical notes
+# A0 is 27.5 all steps are multiplied by 12root(2) or 1.0594 steps up until A9 14080
+# see monophonic pitch slide 24
+
 import note
 
 class Composition :
@@ -27,7 +31,7 @@ class Composition :
         for note in self.notes :
             print(note)
         return ''
-        
+
     # sort by start times
     def sort_by_start_times( self ) :
         notes = sorted(self.notes, key = lambda note: int(note[0]))

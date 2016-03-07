@@ -6,12 +6,15 @@ import composition
 import wave
 import math
 
-def square_wave( length, amplitude, frequency ) :
-    section = frequency // 2
+def square_wave( length, amplitude, frequency, duty_cycles = 0.25 ) :
+    section = frequency // ( 1 / duty_cycles )
     x = np.linspace(amplitude, amplitude, section)
     mx = -x
 
-    t = np.concatenate( (x, mx) )
+    for i in range( (int)( 1 / duty_cycles ) - 1 ) :
+        x = np.concatenate( (x, mx) )
+
+    t = x
     while len(t) < length :
         t = np.concatenate( (t, t) )
     t = t[:length]
@@ -47,20 +50,24 @@ def write_to_file( data, filename, params ):
     f.setparams( params )
     f.writeframes( data.astype(np.int16).tostring() )
 
-def generate( composition ) :
+def generate( composition, style="square" ) :
     notes = composition.notes
     print( composition )
-    s_wave = np.array([])
+    wave = np.array([])
     for note in notes :
         length = note.end_time - note.start_time
         if note.frequency < 1 :
-            s_wave = np.concatenate( (s_wave, np.zeros(length)) )
+            wave = np.concatenate( (wave, np.zeros(length)) )
         else :
-            s_wave = np.concatenate( (s_wave, square_wave(length, note.amplitude, 1/(note.frequency/44100))) )
-    params = (1, 2, 44100, len(s_wave), 'NONE', 'not compressed')
-    write_to_file(s_wave, 'chiptune.wav', params)
+            if style == "square" :
+                wave = np.concatenate( (wave, square_wave(length, note.amplitude, 1/(note.frequency/44100))) )
+            elif style == "triangle" :
+                wave = np.concatenate( (wave, triangle_wave(length, note.amplitude, 1/(note.frequency/44100))) )
+            elif style == "noise" :
+                wave = np.concatenate( (wave, noise_wave(length, note.amplitude ) ) )
 
-
+    params = (1, 2, 44100, len(wave), 'NONE', 'not compressed')
+    write_to_file(wave, 'chiptune.wav', params)
 
 if __name__ == "__main__" :
     s_wave = np.array([])

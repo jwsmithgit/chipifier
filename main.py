@@ -1,6 +1,7 @@
-import sonic_scanner.py
-import retro_conformer.py
-import wave_generator.py
+import sonic_scanner
+import retro_conformer
+import wave_generator
 
 if __name__ == "__main__" :
-    print("MAIN")
+    composition = sonic_scanner.scan()
+    wave_generator.generate(composition)

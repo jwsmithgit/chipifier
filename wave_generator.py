@@ -49,12 +49,13 @@ def write_to_file( data, filename, params ):
 
 def generate( composition ) :
     notes = composition.notes
+    print( composition )
     s_wave = np.array([])
     for note in notes :
         length = note.end_time - note.start_time
-        s_wave = np.concatenate( (s_wave, square_wave(length, 10000, 1/(note.frequency/44100))) )
-    params = (1, 2, 44100, len(n_wave), 'NONE', 'not compressed')
-    write_to_file(s_wave, 'square.wav', params)
+        s_wave = np.concatenate( (s_wave, square_wave(1024, 10000, 1/(note.frequency/44100))) )
+    params = (1, 2, 44100, len(s_wave), 'NONE', 'not compressed')
+    write_to_file(s_wave, 'chiptune.wav', params)
 
 
 

@@ -2,7 +2,7 @@
 COMPOSITION class
 a composition is a collection of notes for one instrument
 '''
-
+import numpy as np
 import note
 import math
 
@@ -60,9 +60,10 @@ class Composition :
 
     # prints a pretty composition
     def __str__( self ) :
+        string = ""
         for note in self.notes :
-            print(note)
-        return ''
+            string += str(note) + '\n'
+        return string
 
     # sort by start times
     def sort_by_start_times( self ) :
@@ -72,3 +73,37 @@ class Composition :
         for note in self.notes :
             closest = find_closest( self.music_notes, note.frequency )
             note.set_frequency( closest )
+
+    def merge_note_frequencies( self, notes ) :
+        if not notes :
+            return
+
+        frequencies = [ ]
+        for note in notes :
+            frequencies.append( note.get_frequency() )
+
+        frequency_counts = np.bincount( frequencies )
+        new_frequency = np.argmax( frequency_counts )
+
+        for note in notes :
+            note.set_frequency( new_frequency )
+
+    def unify_notes( self ) :
+        decreased = False
+        si = 0
+        for i, note in enumerate(self.notes) :
+            if note.get_amplitude() > self.notes[i-1].get_amplitude() * 1.10 :
+                if decreased == True :
+                    ei = i
+                    self.merge_note_frequencies( self.notes[si:ei] )
+                    si = i
+
+                    decreased = False
+            else :
+
+                decreased = True
+
+    def high_pass_filter( self, gate ) :
+        for i, note in enumerate(self.notes) :
+            if note.get_frequency() > gate :
+                note.set_frequency( self.notes[i-1].get_frequency() )

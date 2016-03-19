@@ -10,6 +10,7 @@ def output_to_file( var ) :
 
 if __name__ == "__main__" :
     composition = sonic_scanner.scan( 'sound.wav' )
+    composition.detect_beats()
 
     #print( composition )
     composition.crush_notes()

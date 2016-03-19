@@ -77,12 +77,6 @@ def find_beat_locations(wave_window_averages_list):
         count += 1
         previous_notes_average = (previous_windows_average + window_average) / count
 
-
-    print("avg times")
-    print(len(beat_note_list))
-    for item in beat_note_list:
-        print(item.get_start_time())
-
     return beat_note_list
 
 

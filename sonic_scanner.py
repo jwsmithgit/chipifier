@@ -44,6 +44,10 @@ def fft_amplitude( data ) :
 
 # create autocorrelation estimation
 def autocorrelation_frequency( data, fs ) :
+    # check for silence
+    if not np.any( data ) :
+        return 0
+
     mean = np.mean( data )
     data = np.subtract( data, mean )
 

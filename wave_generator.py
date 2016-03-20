@@ -5,6 +5,7 @@ from scipy import signal
 import composition
 import wave
 import math
+import random
 
 def square_wave( length, amplitude, frequency, duty_cycles = 0.25 ) :
     section = frequency // ( 1 / duty_cycles )
@@ -33,9 +34,23 @@ def triangle_wave( length, amplitude, frequency ) :
 
     return t
 
-def noise_wave( length, amplitude ) :
-    t = np.random.rand(length)
-    t = np.multiply(t,amplitude)
+def noise_wave( length, amplitude, frequency, mode = 1 ) :
+    t = [ ]
+
+    frequency = 762
+
+    while len(t) < length :
+        rcycle = random.randrange( math.floor(frequency) )
+        x = np.linspace( amplitude, amplitude, rcycle )
+        nx = np.linspace( -amplitude, -amplitude, frequency - rcycle )
+        t = np.concatenate( (t, x, nx) )
+
+    '''if mode == 1 :
+        t = np.random.choice( [0, amplitude], length )
+    elif mode == 2 :
+        t = np.random.choice( [0, amplitude], 93 )
+        while len(t) < length :
+            t = np.concatenate( (t, t) )'''
 
     return t
 
@@ -50,7 +65,7 @@ def write_to_file( data, filename, params ):
     f.setparams( params )
     f.writeframes( data.astype(np.int16).tostring() )
 
-def generate( composition, style="square" ) :
+def generate( composition, style="noise" ) :
     notes = composition.notes
     wave = np.array([])
     for note in notes :
@@ -63,7 +78,7 @@ def generate( composition, style="square" ) :
             elif style == "triangle" :
                 wave = np.concatenate( (wave, triangle_wave(length, note.amplitude, 1/(note.frequency/44100))) )
             elif style == "noise" :
-                wave = np.concatenate( (wave, noise_wave(length, note.amplitude ) ) )
+                wave = np.concatenate( (wave, noise_wave(length, note.amplitude, 1/(note.frequency/44100))) )
 
     params = (1, 2, 44100, len(wave), 'NONE', 'not compressed')
     write_to_file(wave, 'chiptune.wav', params)

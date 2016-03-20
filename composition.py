@@ -16,10 +16,32 @@ def music_notes( ) :
 
     return notes
 
+def nes_pulse_notes( ) :
+    notes = [ ]
+    nes_cpu = 1789773
+    for t in range(8, 2049) :
+        notes.append( nes_cpu/(16 * (t+1)) )
+        t += 1
+    return notes
+
+def nes_triangle_notes( ) :
+    notes = [ ]
+    nes_cpu = 1789773
+    for t in range(8, 2049) :
+        notes.append( nes_cpu/(32 * (t+1)) )
+        t += 1
+    return notes
+
+def nes_drum_notes( ) :
+    notes = [ 4 ]
+    while notes[-1] <= 4068 :
+        notes.append( note[-1] * 2 )
+    return notes
+
 def find_closest( li, value ) :
     if value < li[0] :
         return li[0]
-    if value > li[-1] :
+    if value >= li[-1] :
         return li[-1]
 
     mid = len(li) // 2
@@ -27,6 +49,7 @@ def find_closest( li, value ) :
     b = li[ mid + 1 ]
 
     if value > a and value < b :
+
         a_diff = value - a
         b_diff = b - value
         if a_diff < b_diff :

@@ -77,6 +77,16 @@ def find_beat_locations(wave_window_averages_list):
         count += 1
         previous_notes_average = (previous_windows_average + window_average) / count
 
+
+    #add end time for each note (=start time of the next)
+    next = 1
+    for beat_note in beat_note_list:
+        if(next == len(beat_note_list)):
+            beat_note.set_end_time(beat_note.get_start_time() + 1024) #could potentially change this (end time of last note)
+            break
+        beat_note.set_end_time(beat_note_list[next].get_start_time())
+        next += 1
+
     return beat_note_list
 
 

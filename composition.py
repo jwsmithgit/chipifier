@@ -98,8 +98,8 @@ class Composition :
         self.tempo = -1
         self.notes = notes
         self.music_notes = music_notes( )
-        self.raw_window_averages = []
-        self.beat_notes = []
+        self.raw_window_averages = [ ]
+        self.beat_notes = [ ]
 
     #add raw wave values
     def add_raw_window_average( self, value):

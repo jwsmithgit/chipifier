@@ -66,8 +66,8 @@ def autocorrelation_frequency( data, fs ) :
 
     return frequency
 
-def scan( filename ) :
-    print( "Freq detection" )
+def beat_scan( filename ) :
+    print( "Beat/Note onset detection" )
     wave_ifile = wave.open( filename, 'r' )
     frame_rate = wave_ifile.getframerate()
     comp = composition.Composition()
@@ -80,15 +80,38 @@ def scan( filename ) :
 
         data = np.fromstring( iframes, np.int16 )
         comp.add_raw_window_average(abs(sum(data)/len(data)))
-        frequency = autocorrelation_frequency( data, frame_rate )
-        amplitude = fft_amplitude( data )
+        #frequency = autocorrelation_frequency( data, frame_rate )
+        #amplitude = fft_amplitude( data )
 
-        comp.add_note( create_note( frequency, segment_num, amplitude ) )
+        #comp.add_note( create_note( frequency, segment_num, amplitude ) )
         segment_num += 1
 
     wave_ifile.close()
 
     return comp
+
+def note_scan( filename, composition ) :
+    print( "Freq detection" )
+    wave_ifile = wave.open( filename, 'r' )
+    frame_rate = wave_ifile.getframerate()
+
+    for note in composition.beat_notes :
+        note_length = note.end_time - note.start_time
+        iframes = wave_ifile.readframes( note_length )
+        if not iframes:
+            break
+
+        data = np.fromstring( iframes, np.int16 )
+
+        frequency = autocorrelation_frequency( data, frame_rate )
+        amplitude = fft_amplitude( data )
+
+        note.set_frequency( frequency )
+        note.set_amplitude( amplitude )
+
+    wave_ifile.close()
+
+    return composition
 
 if __name__ == "__main__" :
     scan( 'sound1.wav' )

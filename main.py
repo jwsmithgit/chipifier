@@ -10,6 +10,7 @@ def output_to_file( var ) :
 
 if __name__ == "__main__" :
     composition = sonic_scanner.scan( 'piano_sound.wav' )
+    composition.detect_beats()
 
     #print( composition )
     composition.unify_notes()

@@ -79,6 +79,7 @@ def scan( filename ) :
             break
 
         data = np.fromstring( iframes, np.int16 )
+        comp.add_raw_window_average(abs(sum(data)/len(data)))
         frequency = autocorrelation_frequency( data, frame_rate )
         amplitude = fft_amplitude( data )
 

@@ -9,7 +9,7 @@ def output_to_file( var ) :
     return
 
 if __name__ == "__main__" :
-    composition = sonic_scanner.scan( 'piano_sound.wav' )
+    composition = sonic_scanner.scan( 'sound.wav' )
     composition.detect_beats()
 
     #print( composition )

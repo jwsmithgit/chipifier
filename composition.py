@@ -16,32 +16,10 @@ def music_notes( ) :
 
     return notes
 
-def nes_pulse_notes( ) :
-    notes = [ ]
-    nes_cpu = 1789773
-    for t in range(8, 2049) :
-        notes.append( nes_cpu/(16 * (t+1)) )
-        t += 1
-    return notes
-
-def nes_triangle_notes( ) :
-    notes = [ ]
-    nes_cpu = 1789773
-    for t in range(8, 2049) :
-        notes.append( nes_cpu/(32 * (t+1)) )
-        t += 1
-    return notes
-
-def nes_drum_notes( ) :
-    notes = [ 4 ]
-    while notes[-1] <= 4068 :
-        notes.append( note[-1] * 2 )
-    return notes
-
 def find_closest( li, value ) :
     if value < li[0] :
         return li[0]
-    if value >= li[-1] :
+    if value > li[-1] :
         return li[-1]
 
     mid = len(li) // 2
@@ -49,7 +27,6 @@ def find_closest( li, value ) :
     b = li[ mid + 1 ]
 
     if value > a and value < b :
-
         a_diff = value - a
         b_diff = b - value
         if a_diff < b_diff :
@@ -63,11 +40,70 @@ def find_closest( li, value ) :
     else :
         return find_closest( li[mid:], value )
 
+def find_beat_locations(wave_window_averages_list):
+    beat_note_list = []
+    count = 1;
+    previous_windows_average = 0
+
+    #gradual average for first set of windows
+    for window_average in wave_window_averages_list:
+        if count == 1:
+            count += 1
+            previous_windows_average = window_average
+            continue
+        if count > 40:
+            break
+
+        # if current note average is greater than avg of previous windows
+        if( window_average > previous_windows_average):
+            beat_note = note.Note(start_time = 1024*count)
+            beat_note_list.append(beat_note)
+
+        previous_window_average = (previous_windows_average * count)
+        count += 1
+        previous_notes_average = (previous_windows_average + window_average) / count
+
+    count=1
+    #full size window detection of beats for the rest of the windows
+    for window_average in wave_window_averages_list:
+        if(count <= 41):
+            count += 1
+            continue
+        if( window_average > previous_windows_average):
+           beat_note = note.Note(start_time = 1024*count)
+           beat_note_list.append(beat_note)
+
+        previous_window_average = (previous_windows_average * count)
+        count += 1
+        previous_notes_average = (previous_windows_average + window_average) / count
+
+
+    #add end time for each note (=start time of the next)
+    next = 1
+    for beat_note in beat_note_list:
+        if(next == len(beat_note_list)):
+            beat_note.set_end_time(beat_note.get_start_time() + 1024) #could potentially change this (end time of last note)
+            break
+        beat_note.set_end_time(beat_note_list[next].get_start_time())
+        next += 1
+
+    return beat_note_list
+
+
+
+
+
 class Composition :
     def __init__( self, notes=[ ] ) :
         self.tempo = -1
         self.notes = notes
         self.music_notes = music_notes( )
+        self.raw_window_averages = []
+        self.beat_notes = []
+
+    #add raw wave values
+    def add_raw_window_average( self, value):
+        self.raw_window_averages.append(value)
 
     # add notes to composition
     def add_note( self, note ) :
@@ -130,3 +166,6 @@ class Composition :
         for i, note in enumerate(self.notes) :
             if note.get_frequency() > gate :
                 note.set_frequency( self.notes[i-1].get_frequency() )
+
+    def detect_beats( self ):
+        self.beat_notes = find_beat_locations(self.raw_window_averages)

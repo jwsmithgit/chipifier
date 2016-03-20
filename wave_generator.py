@@ -7,7 +7,7 @@ import wave
 import math
 import random
 
-def square_wave( length, amplitude, frequency, duty_cycles = 0.25 ) :
+def pulse_wave( length, amplitude, frequency, duty_cycles = 0.25 ) :
     section = frequency // ( 1 / duty_cycles )
     x = np.linspace(amplitude, amplitude, section)
     mx = -x
@@ -65,7 +65,7 @@ def write_to_file( data, filename, params ):
     f.setparams( params )
     f.writeframes( data.astype(np.int16).tostring() )
 
-def generate( composition, style="noise" ) :
+def generate( composition, style="pulse" ) :
     notes = composition.notes
     wave = np.array([])
     for note in notes :
@@ -73,8 +73,8 @@ def generate( composition, style="noise" ) :
         if note.frequency < 1 :
             wave = np.concatenate( (wave, np.zeros(length)) )
         else :
-            if style == "square" :
-                wave = np.concatenate( (wave, square_wave(length, note.amplitude, 1/(note.frequency/44100))) )
+            if style == "pulse" :
+                wave = np.concatenate( (wave, pulse_wave(length, note.amplitude, 1/(note.frequency/44100))) )
             elif style == "triangle" :
                 wave = np.concatenate( (wave, triangle_wave(length, note.amplitude, 1/(note.frequency/44100))) )
             elif style == "noise" :

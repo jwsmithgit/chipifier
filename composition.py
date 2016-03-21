@@ -93,7 +93,7 @@ class Composition :
     def sort_by_start_times( self ) :
         notes = sorted(self.notes, key = lambda note: int(note[0]))
 
-    def crush_notes( self, scale ) :
+    def crush_notes( self ) :
         for note in self.notes :
             closest = utilities.find_closest( self.scale, note.frequency )
             note.set_frequency( closest )

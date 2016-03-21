@@ -12,7 +12,7 @@ def output_to_file( var ) :
 
 def create_parser() :
     parser = argparse.ArgumentParser()
-    parser.add_argument('--all', action="store", dest="all", default=None, help="0: all instruments track file")
+    parser.add_argument('--allin', action="store", dest="allin", default=None, help="all instruments track file")
 
     parser.add_argument('--lead1', action="store", dest="lead1", default=None, help="1: first lead track file")
     parser.add_argument('--lead2', action="store", dest="lead2", default=None, help="2: second lead track file")
@@ -49,16 +49,53 @@ if __name__ == "__main__" :
     parser = create_parser()
     args = parser.parse_args()
 
-    composition = sonic_scanner.beat_scan( 'piano_sound.wav' )
-    composition.detect_beats()
+    # all the files to process frequencies
+    wave_files = [(1,'piano_sound.wav')]
+    if( args.allin ) :
+        wave_files.append( (0, args.allin) )
 
-    composition = sonic_scanner.note_scan( 'piano_sound.wav', composition )
-    composition.notes = composition.beat_notes
+    else :
+        if ( args.lead1 ) :
+            wave_files.append( (1, args.lead1) )
 
-    #print( composition )
-    #composition.unify_notes()
-    composition.crush_notes()
-    #composition.high_pass_filter(1000)
-    #print( composition )
-    output_to_file( composition )
-    wave_generator.generate( composition )
+        if ( args.lead2 ) :
+            wave_files.append( (2, args.lead2) )
+
+        if ( args.bass ) :
+            wave_files.append( (3, args.bass) )
+
+        if ( args.drums ) :
+            wave_files.append( (4, args.drums) )
+
+    # get notes for each file
+    compositions = [ ]
+    for tup in wave_files :
+        instrument = tup[0]
+        wave_file = tup[1]
+
+        composition = sonic_scanner.beat_scan( wave_file )
+        composition.detect_beats()
+
+        composition = sonic_scanner.note_scan( wave_file, composition )
+        composition.notes = composition.beat_notes
+
+        if ( args.notesmooth ) :
+            composition.unify_notes()
+
+        if ( args.hipass ) :
+            composition.high_pass_filter( args.hipassval )
+
+        if ( args.lopass ) :
+            continue
+            # TODO low pass filter function
+            #composition.low_pass_filter( args["lopassval"] )
+
+        # TODO pass in parameter specifying which note scale to crush to
+        composition.crush_notes()
+
+        output_to_file( composition )
+        compositions.append( composition )
+
+    # get notes for each file
+    for composition in compositions :
+        wave_generator.generate( composition )

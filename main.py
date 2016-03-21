@@ -1,3 +1,5 @@
+import argparse
+
 import sonic_scanner
 import retro_conformer
 import wave_generator
@@ -8,7 +10,45 @@ def output_to_file( var ) :
     f.close()
     return
 
+def create_parser() :
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--all', action="store", dest="all", default=None, help="0: all instruments track file")
+
+    parser.add_argument('--lead1', action="store", dest="lead1", default=None, help="1: first lead track file")
+    parser.add_argument('--lead2', action="store", dest="lead2", default=None, help="2: second lead track file")
+    parser.add_argument('--bass', action="store", dest="bass", default=None, help="3: bass track file")
+    parser.add_argument('--drums', action="store", dest="drums", default=None, help="4: drum track file")
+
+    parser.add_argument('--outfile', action="store", dest="outfile", default='chiptune.wav', help="the resulting output file")
+
+    parser.add_argument('--l1voice', action="store", dest="l1voice", type=int, choices=(1,2,3), default=1, help="what voice lead1 will use")
+    parser.add_argument('--l2voice', action="store", dest="l2voice", type=int, choices=(1,2,3), default=2, help="what voice lead2 will use")
+    parser.add_argument('--dvoice', action="store", dest="dvoice", type=int, choices=(1,2), default=1, help="what voice drums will use")
+
+    parser.add_argument('--reverb', action="store", dest="reverb", type=int, choices=(1,2), help="which lead will use reverb effect, replaces other lead")
+    parser.add_argument('--echo', action="append", dest="echo", type=int, choices=(1,2), default=[], help="which lead will use echo effect")
+    parser.add_argument('--mod', action="append", dest="mod", type=int, choices=(1,2), default=[], help="which lead will use duty cycle modulation effect")
+    parser.add_argument('--arp', action="append", dest="arp", type=int, choices=(1,2), default=[], help="which lead will use arpeggio effect")
+
+    parser.add_argument('--gendrums', action="store_true", dest="gendrums", help="generate drums")
+    parser.add_argument('--trikick', action="store_true", dest="trikick", help="use tringle wave for drum kick")
+
+    parser.add_argument('--polydetect', action="append", dest="polydetect", type=int, choices=(1,2,3,4), default=[], help="which instruments will use polyphonic detection")
+    parser.add_argument('--dywindows', action="store_true", dest="dywindows", help="use dynamic windows for frequency detection")
+    parser.add_argument('--freqdetect', action="store", dest="freqdetect", choices=('fft','autocorr'), default='autocorr', help="use fft or autocorrelation for autocorrelation")
+
+    parser.add_argument('--notesmooth', action="store_true", dest="notesmooth", help="use note smoother")
+    parser.add_argument('--hipass', action="store_true", dest="hipass", help="use high pass filter")
+    parser.add_argument('--hipassval', action="store", dest="hipassval", type=int, default=10, help="specify high pass filter value")
+    parser.add_argument('--lopass', action="store_true", dest="lopass", help="use low pass filter")
+    parser.add_argument('--lopassval', action="store", dest="lopassval", type=int, default=10000, help="specify low pass filter value")
+
+    return parser
+
 if __name__ == "__main__" :
+    parser = create_parser()
+    args = parser.parse_args()
+
     composition = sonic_scanner.beat_scan( 'piano_sound.wav' )
     composition.detect_beats()
 

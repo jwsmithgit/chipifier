@@ -86,9 +86,7 @@ if __name__ == "__main__" :
             composition.high_pass_filter( args.hipassval )
 
         if ( args.lopass ) :
-            continue
-            # TODO low pass filter function
-            #composition.low_pass_filter( args["lopassval"] )
+            composition.low_pass_filter( args.lopassval )
 
         # TODO pass in parameter specifying which note scale to crush to
         composition.crush_notes()

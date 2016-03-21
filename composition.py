@@ -8,7 +8,7 @@ import math
 import scale
 import utilities
 
-def find_beat_locations(wave_window_averages_list):
+def find_beat_locations( wave_window_averages_list ):
     beat_note_list = []
     count = 1;
     previous_windows_average = 0
@@ -23,36 +23,36 @@ def find_beat_locations(wave_window_averages_list):
             break
 
         # if current note average is greater than avg of previous windows
-        if( window_average > previous_windows_average):
-            beat_note = note.Note(start_time = 1024*count)
-            beat_note_list.append(beat_note)
+        if( window_average > previous_windows_average ) :
+            beat_note = note.Note( start_time = 1024 * count )
+            beat_note_list.append( beat_note )
 
-        previous_window_average = (previous_windows_average * count)
+        previous_window_average = ( previous_windows_average * count )
         count += 1
-        previous_notes_average = (previous_windows_average + window_average) / count
+        previous_notes_average = ( previous_windows_average + window_average ) / count
 
-    count=1
+    count = 1
     #full size window detection of beats for the rest of the windows
     for window_average in wave_window_averages_list:
-        if(count <= 41):
+        if( count <= 41 ) :
             count += 1
             continue
-        if( window_average > previous_windows_average):
-           beat_note = note.Note(start_time = 1024*count)
-           beat_note_list.append(beat_note)
+        if( window_average > previous_windows_average ) :
+           beat_note = note.Note( start_time = 1024 * count )
+           beat_note_list.append( beat_note )
 
-        previous_window_average = (previous_windows_average * count)
+        previous_window_average = ( previous_windows_average * count )
         count += 1
-        previous_notes_average = (previous_windows_average + window_average) / count
+        previous_notes_average = ( previous_windows_average + window_average ) / count
 
 
     #add end time for each note (=start time of the next)
     next = 1
     for beat_note in beat_note_list:
-        if(next == len(beat_note_list)):
-            beat_note.set_end_time(beat_note.get_start_time() + 1024) #could potentially change this (end time of last note)
+        if( next == len(beat_note_list) ) :
+            beat_note.set_end_time( beat_note.get_start_time() + 1024 ) #could potentially change this (end time of last note)
             break
-        beat_note.set_end_time(beat_note_list[next].get_start_time())
+        beat_note.set_end_time( beat_note_list[next].get_start_time() )
         next += 1
 
     return beat_note_list
@@ -93,7 +93,7 @@ class Composition :
     def sort_by_start_times( self ) :
         notes = sorted(self.notes, key = lambda note: int(note[0]))
 
-    def crush_notes( self ) :
+    def crush_notes( self, scale ) :
         for note in self.notes :
             closest = utilities.find_closest( self.scale, note.frequency )
             note.set_frequency( closest )
@@ -130,7 +130,24 @@ class Composition :
     def high_pass_filter( self, gate ) :
         for i, note in enumerate(self.notes) :
             if note.get_frequency() > gate :
-                note.set_frequency( self.notes[i-1].get_frequency() )
+                frequency = 0
+                if self.notes[i-1].get_frequency() :
+                    frequency = self.notes[i-1].get_frequency()
+                else :
+                    frequency = self.notes[i+1].get_frequency()
+
+                note.set_frequency( frequency )
+
+    def low_pass_filter( self, gate ) :
+        for i, note in enumerate(self.notes) :
+            if note.get_frequency() < gate :
+                frequency = 0
+                if self.notes[i-1].get_frequency() :
+                    frequency = self.notes[i-1].get_frequency()
+                else :
+                    frequency = self.notes[i+1].get_frequency()
+
+                note.set_frequency( frequency )
 
     def detect_beats( self ):
         self.beat_notes = find_beat_locations(self.raw_window_averages)

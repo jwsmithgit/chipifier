@@ -1,4 +1,5 @@
 import argparse
+import copy
 
 import sonic_scanner
 import retro_conformer
@@ -77,9 +78,9 @@ if __name__ == "__main__" :
         #composition.detect_beats()
         
         beats = sonic_scanner.beat_scan( wave_file )
-        print( "Hello?" )
-        print( beats )
-        composition = sonic_scanner.note_scan( wave_file, beats )
+        #print( "Hello?" )
+        #print( beats )
+        composition = sonic_scanner.note_scan( wave_file, beats, channel )
         #composition.notes = composition.beat_notes
 
         if ( args.notesmooth ) :
@@ -91,8 +92,7 @@ if __name__ == "__main__" :
         if ( args.lopass ) :
             composition.low_pass_filter( args.lopassval )
 
-        # TODO pass in parameter specifying which note scale to crush to
-        composition.crush_notes()
+        composition.crush_notes( )
 
         output_to_file( composition )
         compositions.append( composition )

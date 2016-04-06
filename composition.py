@@ -8,6 +8,7 @@ import math
 import scale
 import utilities
 
+'''
 def find_beat_locations( wave_window_averages_list ):
     beat_note_list = []
     count = 1;
@@ -56,20 +57,48 @@ def find_beat_locations( wave_window_averages_list ):
         next += 1
 
     return beat_note_list
+'''
 
 
 class Composition :
-    def __init__( self, notes=[ ], channel ) :
+    def __init__( self, notes=[ ], channel=1 ) :
+        self.channel = channel
         self.tempo = -1
         self.notes = notes
-        self.scale = scale.western_scale( )
-        self.raw_window_averages = [ ]
+        self.scale = scale.get_scale( channel )
+            
+        '''self.raw_window_averages = [ ]
         self.beat_notes = [ ]
-        self.channel = channel
+        '''
 
-    #add raw wave values
+    
+    '''#add raw wave values
     def add_raw_window_average( self, value):
         self.raw_window_averages.append(value)
+    '''
+
+    # SETTERS
+    def set_channel( self, channel ) :
+        self.channel = channel 
+    
+    def set_tempo( self, tempo ) :
+        self.tempo = tempo
+    
+    def set_scale( self, channel ) :
+        self.scale = scale.get_scale( channel )
+        
+    # GETTERS
+    def get_channel( self ) : 
+        return self.channel
+    
+    def get_tempo( self ) :
+        return self.tempo
+        
+    def get_notes( self ) :
+        return self.notes
+        
+    def get_scale( self ) :
+        return self.scale
 
     # add note to composition
     def add_note( self, note ) :
@@ -150,5 +179,7 @@ class Composition :
 
                 note.set_frequency( frequency )
 
+    '''
     def detect_beats( self ):
         self.beat_notes = find_beat_locations(self.raw_window_averages)
+    '''

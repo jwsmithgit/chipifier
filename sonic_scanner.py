@@ -248,12 +248,14 @@ def beat_scan( filename ) :
 
     return comp"""
 
-def note_scan( filename, beats ) :
+def note_scan( filename, beats, channel ) :
     print( "Freq detection" )
     wave_ifile = wave.open( filename, 'r' )
     frame_rate = wave_ifile.getframerate()
     
-    compo = composition.Composition()
+    composition_ = composition.Composition()
+    composition_.set_channel( channel )
+    start_time = 0
     
     for i,beat in enumerate(beats) :
         if i == 0 :
@@ -265,20 +267,20 @@ def note_scan( filename, beats ) :
         if not iframes:
             break
 
-        
         data = np.fromstring( iframes, np.int16 )
 
+        end_time = start_time + beats[i]
         frequency = autocorrelation_frequency( data, frame_rate )
         amplitude = fft_amplitude( data )
 
-        compo.add_note( , frequency, amplitude  )
-        compo.add_note( frequency, segment_num, amplitude )
-        note.set_frequency( frequency )
-        note.set_amplitude( amplitude )
+        note_ = note.Note( start_time, end_time, frequency, amplitude )
+        composition_.add_note( note_ )
+        
+        start_time += beats[i]
 
     wave_ifile.close()
 
-    return composition
+    return composition_
     
     '''for note in composition.beat_notes :
         note_length = note.end_time - note.start_time

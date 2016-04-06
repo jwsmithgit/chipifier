@@ -54,7 +54,6 @@ def noise_wave( length, amplitude, frequency, mode = 1 ) :
 
     return t
 
-
 def mix_waves( waves ):
     mix = np.zeros(len(waves[0]))
     for wave in waves :

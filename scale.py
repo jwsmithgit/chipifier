@@ -34,6 +34,14 @@ def nes_noise_scale( ) :
     scale = 1/(scale/44100)
     return scale
 
+def get_scale( channel ) :
+    if( channel == 1 or channel == 2 ) :
+        return nes_pulse_scale( )
+    elif( channel == 3 ) :
+        return nes_triangle_scale( )
+    elif( channel == 4 ) :
+        return nes_noise_scale( )
+
 class Scale :
     def __init__( self, scale ) :
         self.scale = [ ]

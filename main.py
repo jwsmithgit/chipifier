@@ -68,12 +68,12 @@ if __name__ == "__main__" :
             wave_files.append( (4, args.drums) )
 
     # get notes for each file
-    compositions = [ ]
+    compositions = [ ] 
     for tup in wave_files :
-        instrument = tup[0]
+        channel = tup[0]
         wave_file = tup[1]
 
-        composition = sonic_scanner.beat_scan( wave_file )
+        composition = sonic_scanner.beat_scan( wave_file, channel )
         composition.detect_beats()
 
         composition = sonic_scanner.note_scan( wave_file, composition )
@@ -94,6 +94,14 @@ if __name__ == "__main__" :
         output_to_file( composition )
         compositions.append( composition )
 
+    for composition in compositions:
+        if composition.channel == 1:
+            retro_conformer.split_composition_notes(composition)
+            composition_channel2 = copy.deepcopy(composition)
+            retro_conformer.reverb_composition(composition_channel2, 0.5, 100)
+            composition.append(composition_channel2)
+
     # get notes for each file
     for composition in compositions :
+
         wave_generator.generate( composition )

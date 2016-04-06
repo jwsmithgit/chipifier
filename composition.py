@@ -59,12 +59,13 @@ def find_beat_locations( wave_window_averages_list ):
 
 
 class Composition :
-    def __init__( self, notes=[ ] ) :
+    def __init__( self, notes=[ ], channel ) :
         self.tempo = -1
         self.notes = notes
         self.scale = scale.western_scale( )
         self.raw_window_averages = [ ]
         self.beat_notes = [ ]
+        self.channel = channel
 
     #add raw wave values
     def add_raw_window_average( self, value):

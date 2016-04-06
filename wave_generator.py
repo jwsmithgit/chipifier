@@ -65,7 +65,7 @@ def write_to_file( data, filename, params ):
     f.setparams( params )
     f.writeframes( data.astype(np.int16).tostring() )
 
-def generate( composition, style="pulse" ) :
+def generate( composition ) :
     notes = composition.notes
     wave = np.array([])
     for note in notes :
@@ -73,11 +73,11 @@ def generate( composition, style="pulse" ) :
         if note.frequency < 1 :
             wave = np.concatenate( (wave, np.zeros(length)) )
         else :
-            if style == "pulse" :
-                wave = np.concatenate( (wave, pulse_wave(length, note.amplitude, 1/(note.frequency/44100))) )
-            elif style == "triangle" :
+            if composition.channel == 1 or composition.channel == 2:
+                wave = np.concatenate( (wave, pulse_wave(length, note.amplitude, 1/(note.frequency/44100), note.get_pwm())) )
+            elif composition.channel == 3 :
                 wave = np.concatenate( (wave, triangle_wave(length, note.amplitude, 1/(note.frequency/44100))) )
-            elif style == "noise" :
+            elif composition.channel == 4 :
                 wave = np.concatenate( (wave, noise_wave(length, note.amplitude, 1/(note.frequency/44100))) )
 
     params = (1, 2, 44100, len(wave), 'NONE', 'not compressed')

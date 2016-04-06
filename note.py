@@ -5,12 +5,13 @@ a note is a sound that is made for a duration of time at a certain frequency
 
 class Note :
     # CONSTRUCTOR
-    def __init__( self, start_time=-1, end_time=-1, frequency=-1, amplitude=-1, pwm=50.0 ) :
+    def __init__( self, start_time=-1, end_time=-1, frequency=-1, amplitude=-1, pwm=0.5 ) :
         self.start_time = start_time
         self.end_time = end_time
         self.frequency = frequency
         self.amplitude = amplitude
         self.pwm = pwm
+        self.kick_note = False
 
     # SETTERS
     def set_start_time( self, start_time ) :
@@ -28,6 +29,9 @@ class Note :
     def set_pwm(self, pwm):
         self.pwm = pwm
 
+    def set_kick(self, val):
+        self.kick_note = val
+
 
     # GETTERS
     def get_start_time( self ) :
@@ -44,6 +48,9 @@ class Note :
 
     def get_pwn(self):
         return self.pwm
+
+    def is_kick():
+        return self.kick_note
 
     # PRINT
     def __str__( self ) :

@@ -10,19 +10,28 @@ def western_scale( ) :
 
     return scale
 
-# TODO nes pulse scale
 def nes_pulse_scale( ) :
+    cpu = 1789773
     scale = [ ]
+    for i in range( 2048, 8, -1 ) :
+        scale.append( cpu / ( 16 * ( i + 1 ) ) )
     return scale
 
-# TODO nes triangle scale
 def nes_triangle_scale( ) :
+    cpu = 1789773
     scale = [ ]
+    for i in range( 2048, 999, -1 ) :
+        scale.append( cpu / ( 32 * ( i + 1 ) ) )
     return scale
 
 # TODO nes noise scale
 def nes_noise_scale( ) :
+    cpu = 1789773
     scale = [ ]
+    for i in range( 4068, 4, -1 ) :
+        scale.append( cpu / ( 16 * i ) ) - 1
+    # TODO not correct
+    scale = 1/(scale/44100)
     return scale
 
 class Scale :

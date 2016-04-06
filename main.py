@@ -73,11 +73,14 @@ if __name__ == "__main__" :
         instrument = tup[0]
         wave_file = tup[1]
 
-        composition = sonic_scanner.beat_scan( wave_file )
-        composition.detect_beats()
-
-        composition = sonic_scanner.note_scan( wave_file, composition )
-        composition.notes = composition.beat_notes
+        #composition = sonic_scanner.beat_scan( wave_file )
+        #composition.detect_beats()
+        
+        beats = sonic_scanner.beat_scan( wave_file )
+        print( "Hello?" )
+        print( beats )
+        composition = sonic_scanner.note_scan( wave_file, beats )
+        #composition.notes = composition.beat_notes
 
         if ( args.notesmooth ) :
             composition.unify_notes()

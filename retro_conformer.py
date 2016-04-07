@@ -1,6 +1,7 @@
-import note
+from note import Note
 
 def split_composition_notes(composition):
+    print("applying pulse width modulation...")
     notes = composition.notes
     pwm_notes = []
     for c_note in notes:
@@ -8,7 +9,7 @@ def split_composition_notes(composition):
         for x in range(0,4):
             new_start = int(c_note.get_start_time() + x * increment)
             new_end =  int(c_note.get_start_time() + (x+1) * increment)
-            new_note = note.Note(new_start, new_end, c_note.get_frequency(), c_note.get_amplitude(),get_pwn_val(x))
+            new_note = Note(new_start, new_end, c_note.get_frequency(), c_note.get_amplitude(),get_pwn_val(x))
             pwm_notes.append(new_note)
     composition.notes = pwm_notes
 
@@ -21,18 +22,19 @@ def get_pwn_val(x):
         return .125
 
 def reverb_composition(composition, loudness_factor, delay):
-    note_ = note.Note(0, delay, 0, 0)
-    composition.notes.insert(0, note_)
+    print("applying reverb...")
+    note = Note(0, delay, 0, 0)
+    composition.notes.insert(0, note)
     
-    for note_ in composition.notes:
-        delay_start = note_.get_start_time() + delay
-        delay_end = note_.get_end_time() + delay
+    for note in composition.notes:
+        delay_start = note.get_start_time() + delay
+        delay_end = note.get_end_time() + delay
         #if delay_start < 0:
         #    composition.remove_note(note)
         #else:
-        note_.set_start_time(delay_start)
-        note_.set_end_time(delay_end)
-        note_.set_amplitude( note_.get_amplitude() * loudness_factor )
+        note.set_start_time(delay_start)
+        note.set_end_time(delay_end)
+        note.set_amplitude( note.get_amplitude() * loudness_factor )
         
     return composition
 

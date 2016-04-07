@@ -224,7 +224,7 @@ def beat_scan( filename ) :
     #pl.show()
     
     #min_dist = 1024 * 344.5/44100 # one window
-    min_dist = 44100/2 * 344.5/44100 #160bpm max
+    min_dist = 44100/16 * 344.5/44100 #160bpm max
     peaks = pk.indexes( oss ,min_dist=min_dist ) 
     beats = peaks * 44100/344.5
     beats = list(map(int, beats))

@@ -4,7 +4,6 @@ Class containing functions used to alter the note list in the composition object
 Applying NES tricks to composition objects
 """
 
-import note
 import scale
 from note import Note
 import utilities
@@ -103,14 +102,6 @@ def single_channel_echo(composition):
 
             ahead_note = note
     composition.notes = new_notes_list
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__" :

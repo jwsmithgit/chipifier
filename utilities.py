@@ -1,4 +1,7 @@
 def find_closest( list_, value ) :
+    return min(list_, key=lambda x:abs(x-value))
+    
+    '''
     if value < list_[0] :
         return list_[0]
     if value > list_[-1] :
@@ -21,3 +24,4 @@ def find_closest( list_, value ) :
 
     else :
         return find_closest( list_[mid:], value )
+    '''

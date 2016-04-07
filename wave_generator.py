@@ -55,6 +55,7 @@ def noise_wave( length, amplitude, frequency, mode = 1 ) :
     return t
 
 def mix_waves( waves ):
+    print("mixing waves...")
     max_wave = 0
     for wave in waves :
         if len(wave) > max_wave :
@@ -66,6 +67,7 @@ def mix_waves( waves ):
     return mix
 
 def write_to_file( data, filename, params ):
+    print("writing to file...")
     f = wave.open( filename,'w' )
     f.setparams( params )
     f.writeframes( data.astype(np.int16).tostring() )
@@ -80,6 +82,7 @@ def generate( composition, channel=1 ) :
     wave = np.array([])
     for note in notes :
         length = note.end_time - note.start_time
+        period = 1/(note.get_frequency()/44100)
         if note.frequency < 1 :
             wave = np.concatenate( (wave, np.zeros(length)) )
         else :
@@ -91,15 +94,17 @@ def generate( composition, channel=1 ) :
             elif composition.channel == 4 :
 =======
             if channel == 1 or channel == 2 :
-                wave = np.concatenate( (wave, pulse_wave(length, note.amplitude, 1/(note.frequency/44100), note.pwm)) )
+                wave = np.concatenate( (wave, pulse_wave(length, note.get_amplitude(), period, note.pwm) ) )
             elif channel == 3 :
-                wave = np.concatenate( (wave, triangle_wave(length, note.amplitude, 1/(note.frequency/44100))) )
+                wave = np.concatenate( (wave, triangle_wave(length, note.get_amplitude(), period) ) )
             elif channel == 4 :
+<<<<<<< HEAD
 >>>>>>> 39f3920a465649e6ed9632710923d64e8a8088e0
                 wave = np.concatenate( (wave, noise_wave(length, note.amplitude, 1/(note.frequency/44100))) )
+=======
+                wave = np.concatenate( (wave, noise_wave(length, note.get_amplitude(), period) ) )
+>>>>>>> origin/master
 
-    params = (1, 2, 44100, len(wave), 'NONE', 'not compressed')
-    write_to_file(wave, 'chiptune.wav', params)
     return wave
 
 if __name__ == "__main__" :
@@ -118,7 +123,3 @@ if __name__ == "__main__" :
     write_to_file(s_wave, 'square.wav', params)
     write_to_file(t_wave, 'triangle.wav', params)
     write_to_file(n_wave, 'noise.wav', params)
-    '''plot(n_wave)
-    show()
-    print(len(n_wave))
-    print("GENERATESOUND")'''

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 Class containing functions used to alter the note list in the composition object.
 Applying NES tricks to composition objects
@@ -5,8 +6,12 @@ Applying NES tricks to composition objects
 
 import note
 import scale
+=======
+from note import Note
+>>>>>>> origin/master
 
 def split_composition_notes(composition):
+    print("applying pulse width modulation...")
     notes = composition.notes
     pwm_notes = []
     for c_note in notes:
@@ -14,7 +19,7 @@ def split_composition_notes(composition):
         for x in range(0,4):
             new_start = int(c_note.get_start_time() + x * increment)
             new_end =  int(c_note.get_start_time() + (x+1) * increment)
-            new_note = note.Note(new_start, new_end, c_note.get_frequency(), c_note.get_amplitude(),get_pwn_val(x))
+            new_note = Note(new_start, new_end, c_note.get_frequency(), c_note.get_amplitude(),get_pwn_val(x))
             pwm_notes.append(new_note)
     composition.notes = pwm_notes
 
@@ -57,7 +62,6 @@ def kick_drum_line(composition, chopoff, drop_number):
                 index -= 1
                 new_amplitude -= amplitude_decrease
                 drop_notes.append(note.Notes(drum_note_start, drum_note_end, drum_note_freq, drum_note_amplitude))
-            
 
 if __name__ == "__main__" :
     print("NESMIDI")

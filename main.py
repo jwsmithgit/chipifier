@@ -28,7 +28,7 @@ def create_parser() :
     parser.add_argument('--l2voice', action="store", dest="l2voice", type=int, choices=(1,2,3), default=2, help="what voice lead2 will use")
     parser.add_argument('--dvoice', action="store", dest="dvoice", type=int, choices=(1,2), default=1, help="what voice drums will use")
 
-    parser.add_argument('--reverb', action="store", dest="reverb", type=int, choices=(1,2), help="which lead will use reverb effect, replaces other lead")
+    parser.add_argument('--reverb', action="store_true", dest="reverb", help="use reverb effect on lead 1, replaces lead 2")
     parser.add_argument('--echo', action="append", dest="echo", type=int, choices=(1,2), default=[], help="which lead will use echo effect")
     parser.add_argument('--mod', action="append", dest="mod", type=int, choices=(1,2), default=[], help="which lead will use duty cycle modulation effect")
     parser.add_argument('--arp', action="append", dest="arp", type=int, choices=(1,2), default=[], help="which lead will use arpeggio effect")
@@ -53,7 +53,7 @@ if __name__ == "__main__" :
     args = parser.parse_args()
 
     # all the files to process frequencies
-    wave_files = [(1,'br.wav')]
+    wave_files = [(1,'piano_sound.wav')]
     if( args.allin ) :
         wave_files.append( (0, args.allin) )
 
@@ -76,17 +76,30 @@ if __name__ == "__main__" :
         channel = tup[0]
         wave_file = tup[1]
         
-        #beats = sonic_scanner.beat_scan( wave_file )
-        #beats = sonic_scanner.onset_scan( wave_file )
-        #output_to_file( beats )
         
-        #composition = sonic_scanner.note_scan( wave_file, beats, channel )
-        
-        composition = sonic_scanner.note_scan_old( wave_file, channel )
-        
+        '''
+        #OSS
+        beats = sonic_scanner.beat_scan( wave_file )
+        composition = sonic_scanner.note_scan( wave_file, beats, channel )
         composition.crush_notes( )
-        #composition.unify_notes()
-        #composition.high_pass_filter( 1000 )
+        composition.low_pass_filter( 1000 )
+        composition.high_pass_filter( 50 )
+        '''
+        
+        
+        '''
+        basic amplitude detection
+        beats = sonic_scanner.onset_scan( wave_file )
+        composition = sonic_scanner.note_scan( wave_file, beats, channel )
+        '''
+        
+        
+        composition = sonic_scanner.basic_note_scan( wave_file, channel )
+        composition.crush_notes( )
+        composition.unify_notes()
+        composition.low_pass_filter( 1000 )
+        
+        
         
         if ( args.notesmooth ) :
             composition.unify_notes()
@@ -101,13 +114,19 @@ if __name__ == "__main__" :
         output_to_file( 'file.txt', composition )
         compositions.append( composition )
         
-    #for composition in compositions:
-        #if composition.channel == 1:
-            #retro_conformer.split_composition_notes(composition)
-            #composition_channel2 = copy.deepcopy(composition)
-            #composition_channel2.set_channel( 2 )
-            #composition_channel2 = retro_conformer.reverb_composition(composition_channel2, 0.5, 44100/5)
-            #compositions.append(composition_channel2)
+    for composition in compositions:
+        if composition.channel == 1:
+            if ( args.mod == 1 ) :
+                retro_conformer.split_composition_notes(composition)
+            if ( args.reverb == 1 ) :
+                composition_channel2 = copy.deepcopy(composition)
+                composition_channel2.set_channel( 2 )
+                composition_channel2 = retro_conformer.reverb_composition(composition_channel2, 0.5, 44100/5)
+                compositions.append(composition_channel2)
+                
+        if composition.channel == 2:
+            if ( args.mod == 2 ) :
+                retro_conformer.split_composition_notes(composition)
     
     # get notes for each file
     waves = []

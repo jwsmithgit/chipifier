@@ -4,16 +4,14 @@ import cmath
 
 import numpy as np
 import scipy as sp
-#from scipy.fftpack import fft,rfft
-#from scipy import signal
+import pylab as pl
 
-import composition
-import note
+from composition import Composition
+from note import Note
 
 import sys
 sys.path.append('./peakutils/')
 import peak as pk
-import pylab as pl
 
 # create FFT estimation
 def fft_frequency( data, fs ) :
@@ -35,6 +33,14 @@ def fft_amplitude( data ) :
         complex_coordinate = abs(fft_data[i]) #np.amax( abs(fft_data) )
         amplitude += cmath.polar( complex_coordinate )[0]
 
+    return amplitude
+    
+def amplitude( data ) :
+    amplitude = 0
+    for sample in data :
+        amplitude += sample
+    amplitude // len(data)
+    
     return amplitude
 
 # create autocorrelation estimation
@@ -193,13 +199,13 @@ def get_oss( filename ) :
     magnitude_spectrum = get_magnitude_spectrum( frequency_spectrum )
     log_power_spectrum = get_log_power_spectrum( magnitude_spectrum )
     flux_frames = get_flux( magnitude_spectrum, log_power_spectrum )
+    oss = apply_low_pass_filter(flux_frames)
     #pl.plot(flux_frames[0:344*5])
     #pl.show()
-    #oss = apply_low_pass_filter(flux_frames)
     #pl.plot(oss[0:344*5])
     #pl.show()
     
-    return flux_frames
+    return oss
     
 def get_tempo( oss ) :
     
@@ -212,27 +218,24 @@ def get_tempo( oss ) :
     return tempo
 
 def beat_scan( filename ) :
-    print( "Beat/Note onset detection" )
-    
+    print( "detecting beats..." )
     oss = get_oss( filename )
-    print( len(oss) )
-    pl.plot(oss[0:344*5])
-    pl.show()
+    #pl.plot(oss[0:344*5])
+    #pl.show()
     
-    min_dist = 1024 * 344.5 / 44100
-    peaks = pk.indexes( oss, min_dist=min_dist ) 
+    #min_dist = 1024 * 344.5/44100 # one window
+    min_dist = 44100/2 * 344.5/44100 #160bpm max
+    peaks = pk.indexes( oss ,min_dist=min_dist ) 
     beats = peaks * 44100/344.5
     beats = list(map(int, beats))
     
     return beats
     
-def onset_scan( filename ) :
-    print( "Onset detection" )
+def basic_beat_scan( filename ) :
+    print( "detecting beats..." )
     wave_ifile = wave.open( filename, 'r' )
+    print( wave_ifile.getparams())
     frame_rate = wave_ifile.getframerate()
-    
-    print( wave_ifile.getnchannels() )
-    print( wave_ifile.getsampwidth() )
     
     amplitudes = []
     onsets = []
@@ -260,16 +263,15 @@ def onset_scan( filename ) :
             increased = True
             
     return onsets
-    
-    
 
 def note_scan( filename, beats, channel ) :
-    print( "Freq detection" )
+    print( "detecting frequencies..." )
     wave_ifile = wave.open( filename, 'r' )
+    print( wave_ifile.getparams())
     frame_rate = wave_ifile.getframerate()
     
-    composition_ = composition.Composition()
-    composition_.set_channel( channel )
+    composition = Composition()
+    composition.set_channel( channel )
     start_time = 0
     
     for i,beat in enumerate(beats) :
@@ -288,23 +290,23 @@ def note_scan( filename, beats, channel ) :
         frequency = autocorrelation_frequency( data, frame_rate )
         amplitude = fft_amplitude( data )
 
-        note_ = note.Note( start_time, end_time, frequency, amplitude )
-        composition_.add_note( note_ )
+        note = Note( start_time, end_time, frequency, amplitude )
+        composition.add_note( note )
         
         start_time += note_length
 
     wave_ifile.close()
 
-    return composition_
+    return composition
     
-def note_scan_old( filename, channel ) :
-    print( "Freq detection" )
+def basic_note_scan( filename, channel ) :
+    print( "detecting frequencies..." )
     wave_ifile = wave.open( filename, 'r' )
-    frame_rate = wave_ifile.getframerate()
     print( wave_ifile.getparams())
+    frame_rate = wave_ifile.getframerate()
     
-    composition_ = composition.Composition()
-    composition_.set_channel( channel )
+    composition = Composition()
+    composition.set_channel( channel )
     start_time = 0
     frame_size = 1024
     
@@ -320,14 +322,97 @@ def note_scan_old( filename, channel ) :
         frequency = autocorrelation_frequency( data, frame_rate )
         amplitude = fft_amplitude( data )
 
-        note_ = note.Note( start_time, end_time, frequency, amplitude )
-        composition_.add_note( note_ )
+        note = Note( start_time, end_time, frequency, amplitude )
+        composition.add_note( note )
         
         start_time += frame_size
 
     wave_ifile.close()
 
-    return composition_
+    return composition
+    
+def better_note_scan( filename, channel ) :
+    print( "detecting frequencies..." )
+    wave_ifile = wave.open( filename, 'r' )
+    print( wave_ifile.getparams())
+    frame_rate = wave_ifile.getframerate()
+    
+    composition = Composition()
+    composition.set_channel( channel )
+    start_time = 0
+    frame_size = 1024
+    
+    while( 1 ) :
+        
+        iframes = wave_ifile.readframes( frame_size )
+        if not iframes:
+            break
+
+        data = np.fromstring( iframes, np.int16 )
+
+        end_time = start_time + frame_size
+        frequency = autocorrelation_frequency( data, frame_rate )
+        amplitude = fft_amplitude( data )
+
+        note = Note( start_time, end_time, frequency, amplitude )
+        composition.add_note( note )
+        
+        start_time += frame_size
+
+    wave_ifile.close()
+
+    return composition
+    
+'''
+def find_beat_locations( wave_window_averages_list ):
+    beat_note_list = []
+    count = 1;
+    previous_windows_average = 0
+
+    #gradual average for first set of windows
+    for window_average in wave_window_averages_list:
+        if count == 1:
+            count += 1
+            previous_windows_average = window_average
+            continue
+        if count > 40:
+            break
+
+        # if current note average is greater than avg of previous windows
+        if( window_average > previous_windows_average ) :
+            beat_note = Note( start_time = 1024 * count )
+            beat_note_list.append( beat_note )
+
+        previous_window_average = ( previous_windows_average * count )
+        count += 1
+        previous_notes_average = ( previous_windows_average + window_average ) / count
+
+    count = 1
+    #full size window detection of beats for the rest of the windows
+    for window_average in wave_window_averages_list:
+        if( count <= 41 ) :
+            count += 1
+            continue
+        if( window_average > previous_windows_average ) :
+           beat_note = Note( start_time = 1024 * count )
+           beat_note_list.append( beat_note )
+
+        previous_window_average = ( previous_windows_average * count )
+        count += 1
+        previous_notes_average = ( previous_windows_average + window_average ) / count
+
+
+    #add end time for each note (=start time of the next)
+    next = 1
+    for beat_note in beat_note_list:
+        if( next == len(beat_note_list) ) :
+            beat_note.set_end_time( beat_note.get_start_time() + 1024 ) #could potentially change this (end time of last note)
+            break
+        beat_note.set_end_time( beat_note_list[next].get_start_time() )
+        next += 1
+
+    return beat_note_list
+'''
 
 if __name__ == "__main__" :
     scan( 'sound1.wav' )

@@ -4,61 +4,9 @@ a composition is a collection of notes for one instrument
 '''
 import numpy as np
 import note
-import math
+from note import Note
 import scale
 import utilities
-
-'''
-def find_beat_locations( wave_window_averages_list ):
-    beat_note_list = []
-    count = 1;
-    previous_windows_average = 0
-
-    #gradual average for first set of windows
-    for window_average in wave_window_averages_list:
-        if count == 1:
-            count += 1
-            previous_windows_average = window_average
-            continue
-        if count > 40:
-            break
-
-        # if current note average is greater than avg of previous windows
-        if( window_average > previous_windows_average ) :
-            beat_note = note.Note( start_time = 1024 * count )
-            beat_note_list.append( beat_note )
-
-        previous_window_average = ( previous_windows_average * count )
-        count += 1
-        previous_notes_average = ( previous_windows_average + window_average ) / count
-
-    count = 1
-    #full size window detection of beats for the rest of the windows
-    for window_average in wave_window_averages_list:
-        if( count <= 41 ) :
-            count += 1
-            continue
-        if( window_average > previous_windows_average ) :
-           beat_note = note.Note( start_time = 1024 * count )
-           beat_note_list.append( beat_note )
-
-        previous_window_average = ( previous_windows_average * count )
-        count += 1
-        previous_notes_average = ( previous_windows_average + window_average ) / count
-
-
-    #add end time for each note (=start time of the next)
-    next = 1
-    for beat_note in beat_note_list:
-        if( next == len(beat_note_list) ) :
-            beat_note.set_end_time( beat_note.get_start_time() + 1024 ) #could potentially change this (end time of last note)
-            break
-        beat_note.set_end_time( beat_note_list[next].get_start_time() )
-        next += 1
-
-    return beat_note_list
-'''
-
 
 class Composition :
     def __init__( self, notes=[ ], channel=1 ) :
@@ -66,16 +14,6 @@ class Composition :
         self.tempo = -1
         self.notes = notes
         self.scale = scale.western_scale() #scale.get_scale( channel )
-            
-        '''self.raw_window_averages = [ ]
-        self.beat_notes = [ ]
-        '''
-
-    
-    '''#add raw wave values
-    def add_raw_window_average( self, value):
-        self.raw_window_averages.append(value)
-    '''
 
     # SETTERS
     def set_channel( self, channel ) :
@@ -153,12 +91,12 @@ class Composition :
         notes = [ ]
         
         si = 0
-        for i, note_ in enumerate(self.notes[:-1]) :
+        for i,note in enumerate(self.notes[:-1]) :
             if self.notes[i].get_frequency() != self.notes[i+1].get_frequency() :
                 ei = i+1
                 
                 amplitude = self.average_amplitude( self.notes[si:ei] )
-                notes.append( note.Note( self.notes[si].get_start_time(), self.notes[ei].get_start_time(), self.notes[si].get_frequency(), amplitude) )
+                notes.append( Note( self.notes[si].get_start_time(), self.notes[ei].get_start_time(), self.notes[si].get_frequency(), amplitude) )
                 
                 si = ei
                 
@@ -183,7 +121,7 @@ class Composition :
 
     def high_pass_filter( self, gate ) :
         for i, note in enumerate(self.notes) :
-            if note.get_frequency() > gate :
+            if note.get_frequency() < gate :
                 frequency = 0
                 if self.notes[i-1].get_frequency() :
                     frequency = self.notes[i-1].get_frequency()
@@ -194,7 +132,7 @@ class Composition :
 
     def low_pass_filter( self, gate ) :
         for i, note in enumerate(self.notes) :
-            if note.get_frequency() < gate :
+            if note.get_frequency() > gate :
                 frequency = 0
                 if self.notes[i-1].get_frequency() :
                     frequency = self.notes[i-1].get_frequency()
@@ -202,8 +140,4 @@ class Composition :
                     frequency = self.notes[i+1].get_frequency()
 
                 note.set_frequency( frequency )
-
-    '''
-    def detect_beats( self ):
-        self.beat_notes = find_beat_locations(self.raw_window_averages)
-    '''
+                

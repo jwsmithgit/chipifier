@@ -1,11 +1,12 @@
 import argparse
-import copy
 
 import sonic_scanner
 import retro_conformer
 import wave_generator
 
 import pylab as pl
+
+from composition import Composition
 
 def output_to_file( filename, var ) :
     f = open( filename, 'w' )
@@ -53,7 +54,9 @@ if __name__ == "__main__" :
     args = parser.parse_args()
 
     # all the files to process frequencies
-    wave_files = [(1,'piano_sound.wav')]
+    #
+    wave_files = [(1,'sounds/l1.wav'),(2,'sounds/l2.wav'),(3,'sounds/b.wav'),(4,'sounds/d.wav')]
+    #wave_files = [(1,'real/gr.wav'),(2,'real/sr.wav'),(3,'real/br.wav'),(4,'real/dr.wav')]
     if( args.allin ) :
         wave_files.append( (0, args.allin) )
 
@@ -77,28 +80,24 @@ if __name__ == "__main__" :
         wave_file = tup[1]
         
         
-        '''
         #OSS
-        beats = sonic_scanner.beat_scan( wave_file )
-        composition = sonic_scanner.note_scan( wave_file, beats, channel )
-        composition.crush_notes( )
-        composition.low_pass_filter( 1000 )
-        composition.high_pass_filter( 50 )
-        '''
-        
+        if( channel == 4 ) :
+            beats = sonic_scanner.beat_scan( wave_file )
+            composition = sonic_scanner.note_scan( wave_file, beats, channel )
+            composition.crush_notes( )
+            composition.limiter( 1000 )
+            
+        else :
+            composition = sonic_scanner.basic_note_scan( wave_file, channel )
+            composition.crush_notes( )
+            composition.unify_notes()
+            composition.low_pass_filter( 1000 )
         
         '''
         basic amplitude detection
         beats = sonic_scanner.onset_scan( wave_file )
         composition = sonic_scanner.note_scan( wave_file, beats, channel )
         '''
-        
-        
-        composition = sonic_scanner.basic_note_scan( wave_file, channel )
-        composition.crush_notes( )
-        composition.unify_notes()
-        composition.low_pass_filter( 1000 )
-        
         
         
         if ( args.notesmooth ) :
@@ -113,25 +112,33 @@ if __name__ == "__main__" :
 
         output_to_file( 'file.txt', composition )
         compositions.append( composition )
-        
+    
     for composition in compositions:
-        if composition.channel == 1:
-            if ( args.mod == 1 ) :
+        if composition.get_channel() == 1:
+            if ( 1 in args.mod ) :
                 retro_conformer.split_composition_notes(composition)
-            if ( args.reverb == 1 ) :
-                composition_channel2 = copy.deepcopy(composition)
+            if ( args.reverb ) :
+                for comp2 in compositions :
+                    if comp2.get_channel() == 2 :
+                        compositions.remove(comp2)
+                        
+                composition_channel2 = Composition()
                 composition_channel2.set_channel( 2 )
-                composition_channel2 = retro_conformer.reverb_composition(composition_channel2, 0.5, 44100/5)
+                composition_channel2.add_notes( composition.get_notes() )
+                retro_conformer.reverb_composition(composition_channel2, 0.5, 44100/5)
                 compositions.append(composition_channel2)
                 
-        if composition.channel == 2:
-            if ( args.mod == 2 ) :
+        if composition.get_channel() == 2:
+            if ( 2 in args.mod ) :
                 retro_conformer.split_composition_notes(composition)
     
     # get notes for each file
     waves = []
     for composition in compositions :
         waves.append( wave_generator.generate( composition ) )
+        #print( len( waves ))
+        #print( len(wave_generator.generate( composition )))
+        #print( composition.notes[-1].get_end_time() )
         
     mix = wave_generator.mix_waves( waves )
     params = (1, 2, 44100, len(mix), 'NONE', 'not compressed')

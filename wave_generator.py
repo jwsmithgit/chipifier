@@ -7,8 +7,8 @@ import wave
 import math
 import random
 
-def pulse_wave( length, amplitude, frequency, duty_cycles = 0.5 ) :
-    section = frequency // ( 1 / duty_cycles )
+def pulse_wave( length, amplitude, period, duty_cycles = 0.5 ) :
+    section = period // ( 1 / duty_cycles )
     x = np.linspace(amplitude, amplitude, section)
     mx = -x
 
@@ -22,8 +22,8 @@ def pulse_wave( length, amplitude, frequency, duty_cycles = 0.5 ) :
 
     return t
 
-def triangle_wave( length, amplitude, frequency ) :
-    section = frequency // 4
+def triangle_wave( length, amplitude, period ) :
+    section = period // 4
     x = np.linspace(0, amplitude, section+1)
     mx = -x
 
@@ -33,18 +33,34 @@ def triangle_wave( length, amplitude, frequency ) :
     t = t[:length]
 
     return t
+    
+def noise_amplitude( amp, length ) :
+    noise = np.linspace(amp, 0, 44100/16)
+    if( len(noise) > length ) :
+        noise = noise[:length]
+        return noise
+        
+    silence = np.linspace(0, 0, length - len(noise))
+    amp = np.r_[noise,silence]
+    return amp
 
-def noise_wave( length, amplitude, frequency, mode = 1 ) :
+def noise_wave( length, amplitude, period, mode = 1 ) :
     t = [ ]
 
-    frequency = 762
+    #period = 762
 
     while len(t) < length :
-        rcycle = random.randrange( math.floor(frequency) )
+        rcycle = random.randrange( math.floor(period) )
         x = np.linspace( amplitude, amplitude, rcycle )
-        nx = np.linspace( -amplitude, -amplitude, frequency - rcycle )
+        nx = np.linspace( -amplitude, -amplitude, period - rcycle )
         t = np.concatenate( (t, x, nx) )
 
+    if period > 50 :
+        drum_amp = noise_amplitude( 1, len(t) )
+    else :
+        drum_amp = noise_amplitude( 0.2, len(t) )
+    t = t*drum_amp
+        
     '''if mode == 1 :
         t = np.random.choice( [0, amplitude], length )
     elif mode == 2 :
@@ -63,7 +79,8 @@ def mix_waves( waves ):
             
     mix = np.zeros(max_wave)
     for wave in waves :
-        mix[:len(wave)] += wave
+        level_wave = [x / len(waves) for x in wave]
+        mix[:len(wave)] += level_wave
     return mix
 
 def write_to_file( data, filename, params ):
@@ -72,38 +89,36 @@ def write_to_file( data, filename, params ):
     f.setparams( params )
     f.writeframes( data.astype(np.int16).tostring() )
 
-<<<<<<< HEAD
 def generate( composition ) :
-=======
-def generate( composition, channel=1 ) :
     print("generating wave...")
->>>>>>> 39f3920a465649e6ed9632710923d64e8a8088e0
-    notes = composition.notes
-    wave = np.array([])
+    
+    notes = composition.get_notes()
+    channel = composition.get_channel()
+    wave = [] #np.array([])
     for note in notes :
         length = note.end_time - note.start_time
         period = 1/(note.get_frequency()/44100)
+        
+        if note.frequency < 1 :
+            wave.extend( [0 for i in range(length)] )
+        else :
+            if channel == 1 or channel == 2 :
+                wave.extend( pulse_wave(length, note.get_amplitude(), period, note.pwm) )
+            elif channel == 3 :
+                wave.extend( triangle_wave(length, note.get_amplitude(), period) )
+            elif channel == 4 :
+                wave.extend( noise_wave(length, note.get_amplitude(), period) )
+        '''
         if note.frequency < 1 :
             wave = np.concatenate( (wave, np.zeros(length)) )
         else :
-<<<<<<< HEAD
-            if composition.channel == 1 or composition.channel == 2:
-                wave = np.concatenate( (wave, pulse_wave(length, note.amplitude, 1/(note.frequency/44100), note.get_pwm())) )
-            elif composition.channel == 3 :
-                wave = np.concatenate( (wave, triangle_wave(length, note.amplitude, 1/(note.frequency/44100))) )
-            elif composition.channel == 4 :
-=======
             if channel == 1 or channel == 2 :
                 wave = np.concatenate( (wave, pulse_wave(length, note.get_amplitude(), period, note.pwm) ) )
             elif channel == 3 :
                 wave = np.concatenate( (wave, triangle_wave(length, note.get_amplitude(), period) ) )
             elif channel == 4 :
-<<<<<<< HEAD
->>>>>>> 39f3920a465649e6ed9632710923d64e8a8088e0
-                wave = np.concatenate( (wave, noise_wave(length, note.amplitude, 1/(note.frequency/44100))) )
-=======
                 wave = np.concatenate( (wave, noise_wave(length, note.get_amplitude(), period) ) )
->>>>>>> origin/master
+        '''
 
     return wave
 

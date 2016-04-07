@@ -9,10 +9,10 @@ import scale
 import utilities
 
 class Composition :
-    def __init__( self, notes=[ ], channel=1 ) :
-        self.channel = channel
+    def __init__( self ) :
+        self.channel = 1
         self.tempo = -1
-        self.notes = notes
+        self.notes = [ ]
         self.scale = scale.western_scale() #scale.get_scale( channel )
 
     # SETTERS
@@ -44,7 +44,7 @@ class Composition :
 
     # add notes to composition
     def add_notes( self, notes ) :
-        self.notes += notes
+        self.notes.extend( notes )
 
     # remove a note from the composition
     def remove_note( self, note ) :
@@ -63,7 +63,7 @@ class Composition :
 
     def crush_notes( self ) :
         for note in self.notes :
-            closest = utilities.find_closest( self.scale, note.frequency )
+            closest = utilities.find_closest( self.scale, note.get_frequency() )
             note.set_frequency( closest )
 
     def merge_note_frequencies( self, notes ) :
@@ -114,7 +114,6 @@ class Composition :
 
                     decreased = False
             else :
-
                 decreased = True
                 
         self.remove_duplicates( )
@@ -141,3 +140,7 @@ class Composition :
 
                 note.set_frequency( frequency )
                 
+    def limiter( self, limit ) :
+        for i, note in enumerate(self.notes) :
+            if note.get_frequency() > limit :
+                note.set_frequency( limit )

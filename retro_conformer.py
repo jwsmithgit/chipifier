@@ -1,14 +1,10 @@
-<<<<<<< HEAD
 """
 Class containing functions used to alter the note list in the composition object.
 Applying NES tricks to composition objects
 """
 
-import note
 import scale
-=======
 from note import Note
->>>>>>> origin/master
 
 def split_composition_notes(composition):
     print("applying pulse width modulation...")
@@ -43,8 +39,8 @@ def reverb_composition(composition, loudness_factor, delay):
             note.set_amplitude( note.get_amplitude() * loudness_factor )
 
 def kick_drum_line(composition, chopoff, drop_number):
-    for i in range(0, len(composition.notes))
-        if composition.notes[i].is_kick() and i !=0:
+    for i in range(0, len(composition.notes)) :
+        if composition.notes[i].is_kick() and i !=0 :
             slot_start_time = composition.notes[i].get_start_time() - chopoff
             slot_end_time = composition.notes[i].get_start_time()
             increment = (slot_end_time - slot_start_time) / drop_number

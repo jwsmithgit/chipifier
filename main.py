@@ -115,6 +115,7 @@ if __name__ == "__main__" :
         compositions.append( composition )
         
     for composition in compositions:
+
         if composition.channel == 1:
             if ( args.mod == 1 ) :
                 retro_conformer.split_composition_notes(composition)
@@ -127,6 +128,10 @@ if __name__ == "__main__" :
         if composition.channel == 2:
             if ( args.mod == 2 ) :
                 retro_conformer.split_composition_notes(composition)
+
+        if composition.channel == 3:
+            if ( args.mod == 3 ): 
+            retro_conformer.kick_drum_line(composition, 100, 10)
     
     # get notes for each file
     waves = []

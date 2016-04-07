@@ -49,7 +49,7 @@ class Note :
     def get_pwn(self):
         return self.pwm
 
-    def is_kick():
+    def is_kick(self):
         return self.kick_note
 
     # PRINT
@@ -57,6 +57,7 @@ class Note :
         string = '('
         string += 'start time: ' + str(self.get_start_time())
         string += ', end time: ' + str(self.get_end_time())
+        string += ', is_kick: ' + str(self.is_kick())
         string += ', frequency: ' + str(self.get_frequency())
         string += ', amplitude: ' + str(self.get_amplitude())
         string += ')'

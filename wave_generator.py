@@ -72,12 +72,8 @@ def write_to_file( data, filename, params ):
     f.setparams( params )
     f.writeframes( data.astype(np.int16).tostring() )
 
-<<<<<<< HEAD
-def generate( composition ) :
-=======
 def generate( composition, channel=1 ) :
     print("generating wave...")
->>>>>>> 39f3920a465649e6ed9632710923d64e8a8088e0
     notes = composition.notes
     wave = np.array([])
     for note in notes :
@@ -86,24 +82,12 @@ def generate( composition, channel=1 ) :
         if note.frequency < 1 :
             wave = np.concatenate( (wave, np.zeros(length)) )
         else :
-<<<<<<< HEAD
-            if composition.channel == 1 or composition.channel == 2:
-                wave = np.concatenate( (wave, pulse_wave(length, note.amplitude, 1/(note.frequency/44100), note.get_pwm())) )
-            elif composition.channel == 3 :
-                wave = np.concatenate( (wave, triangle_wave(length, note.amplitude, 1/(note.frequency/44100))) )
-            elif composition.channel == 4 :
-=======
             if channel == 1 or channel == 2 :
                 wave = np.concatenate( (wave, pulse_wave(length, note.get_amplitude(), period, note.pwm) ) )
             elif channel == 3 :
                 wave = np.concatenate( (wave, triangle_wave(length, note.get_amplitude(), period) ) )
             elif channel == 4 :
-<<<<<<< HEAD
->>>>>>> 39f3920a465649e6ed9632710923d64e8a8088e0
-                wave = np.concatenate( (wave, noise_wave(length, note.amplitude, 1/(note.frequency/44100))) )
-=======
                 wave = np.concatenate( (wave, noise_wave(length, note.get_amplitude(), period) ) )
->>>>>>> origin/master
 
     return wave
 

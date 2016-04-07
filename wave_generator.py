@@ -7,7 +7,7 @@ import wave
 import math
 import random
 
-def pulse_wave( length, amplitude, frequency, duty_cycles = 0.25 ) :
+def pulse_wave( length, amplitude, frequency, duty_cycles = 0.5 ) :
     section = frequency // ( 1 / duty_cycles )
     x = np.linspace(amplitude, amplitude, section)
     mx = -x
@@ -55,9 +55,14 @@ def noise_wave( length, amplitude, frequency, mode = 1 ) :
     return t
 
 def mix_waves( waves ):
-    mix = np.zeros(len(waves[0]))
+    max_wave = 0
     for wave in waves :
-        mix = np.add(mix,wave)
+        if len(wave) > max_wave :
+            max_wave = len(wave)
+            
+    mix = np.zeros(max_wave)
+    for wave in waves :
+        mix[:len(wave)] += wave
     return mix
 
 def write_to_file( data, filename, params ):
@@ -65,7 +70,8 @@ def write_to_file( data, filename, params ):
     f.setparams( params )
     f.writeframes( data.astype(np.int16).tostring() )
 
-def generate( composition, style="pulse" ) :
+def generate( composition, channel=1 ) :
+    print("generating wave...")
     notes = composition.notes
     wave = np.array([])
     for note in notes :
@@ -73,15 +79,16 @@ def generate( composition, style="pulse" ) :
         if note.frequency < 1 :
             wave = np.concatenate( (wave, np.zeros(length)) )
         else :
-            if style == "pulse" :
-                wave = np.concatenate( (wave, pulse_wave(length, note.amplitude, 1/(note.frequency/44100))) )
-            elif style == "triangle" :
+            if channel == 1 or channel == 2 :
+                wave = np.concatenate( (wave, pulse_wave(length, note.amplitude, 1/(note.frequency/44100), note.pwm)) )
+            elif channel == 3 :
                 wave = np.concatenate( (wave, triangle_wave(length, note.amplitude, 1/(note.frequency/44100))) )
-            elif style == "noise" :
+            elif channel == 4 :
                 wave = np.concatenate( (wave, noise_wave(length, note.amplitude, 1/(note.frequency/44100))) )
 
     params = (1, 2, 44100, len(wave), 'NONE', 'not compressed')
     write_to_file(wave, 'chiptune.wav', params)
+    return wave
 
 if __name__ == "__main__" :
     s_wave = np.array([])

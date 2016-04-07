@@ -13,15 +13,7 @@ import note
 import sys
 sys.path.append('./peakutils/')
 import peak as pk
-
-BUFFER_SIZE = 1024
-SEGMENT_SIZE = 1024
-
-'''def create_note( freq, seg_num, ampl ):
-    start_time = seg_num * SEGMENT_SIZE
-    end_time = start_time + SEGMENT_SIZE-1
-    return note.Note( start_time, end_time, freq, ampl )
-'''
+import pylab as pl
 
 # create FFT estimation
 def fft_frequency( data, fs ) :
@@ -201,9 +193,13 @@ def get_oss( filename ) :
     magnitude_spectrum = get_magnitude_spectrum( frequency_spectrum )
     log_power_spectrum = get_log_power_spectrum( magnitude_spectrum )
     flux_frames = get_flux( magnitude_spectrum, log_power_spectrum )
-    oss = apply_low_pass_filter(flux_frames)
+    #pl.plot(flux_frames[0:344*5])
+    #pl.show()
+    #oss = apply_low_pass_filter(flux_frames)
+    #pl.plot(oss[0:344*5])
+    #pl.show()
     
-    return oss
+    return flux_frames
     
 def get_tempo( oss ) :
     
@@ -218,35 +214,54 @@ def get_tempo( oss ) :
 def beat_scan( filename ) :
     print( "Beat/Note onset detection" )
     
-    #oss = get_oss( filename )
-    oss = get_oss( 'hardsnes.wav' )
-    peaks = pk.indexes( oss ) 
+    oss = get_oss( filename )
+    print( len(oss) )
+    pl.plot(oss[0:344*5])
+    pl.show()
+    
+    min_dist = 1024 * 344.5 / 44100
+    peaks = pk.indexes( oss, min_dist=min_dist ) 
     beats = peaks * 44100/344.5
     beats = list(map(int, beats))
     
     return beats
     
-    """wave_ifile = wave.open( filename, 'r' )
+def onset_scan( filename ) :
+    print( "Onset detection" )
+    wave_ifile = wave.open( filename, 'r' )
     frame_rate = wave_ifile.getframerate()
-    comp = composition.Composition()
-    segment_num = 0
-
-    while True:
-        iframes = wave_ifile.readframes( BUFFER_SIZE )
+    
+    print( wave_ifile.getnchannels() )
+    print( wave_ifile.getsampwidth() )
+    
+    amplitudes = []
+    onsets = []
+    frame_size = 1024
+    
+    while( 1 ) :
+        iframes = wave_ifile.readframes( 1024 )
         if not iframes:
             break
-
+            
         data = np.fromstring( iframes, np.int16 )
-        comp.add_raw_window_average(abs(sum(data)/len(data)))
-        #frequency = autocorrelation_frequency( data, frame_rate )
-        #amplitude = fft_amplitude( data )
-
-        #comp.add_note( create_note( frequency, segment_num, amplitude ) )
-        segment_num += 1
-
-    wave_ifile.close()
-
-    return comp"""
+        amplitude = fft_amplitude( data )
+        amplitudes.append( amplitude )
+    
+    increased = False
+    for i, amplitude in enumerate(amplitudes) :
+        if i == 0 :
+            continue
+            
+        if amplitudes[i] < amplitudes[i-1] * .7 :
+            if increased == True :
+                onsets.append( (i-1)*frame_size )
+                increased = False
+        else :
+            increased = True
+            
+    return onsets
+    
+    
 
 def note_scan( filename, beats, channel ) :
     print( "Freq detection" )
@@ -269,33 +284,50 @@ def note_scan( filename, beats, channel ) :
 
         data = np.fromstring( iframes, np.int16 )
 
-        end_time = start_time + beats[i]
+        end_time = start_time + note_length
         frequency = autocorrelation_frequency( data, frame_rate )
         amplitude = fft_amplitude( data )
 
         note_ = note.Note( start_time, end_time, frequency, amplitude )
         composition_.add_note( note_ )
         
-        start_time += beats[i]
+        start_time += note_length
 
     wave_ifile.close()
 
     return composition_
     
-    '''for note in composition.beat_notes :
-        note_length = note.end_time - note.start_time
-        iframes = wave_ifile.readframes( note_length )
+def note_scan_old( filename, channel ) :
+    print( "Freq detection" )
+    wave_ifile = wave.open( filename, 'r' )
+    frame_rate = wave_ifile.getframerate()
+    print( wave_ifile.getparams())
+    
+    composition_ = composition.Composition()
+    composition_.set_channel( channel )
+    start_time = 0
+    frame_size = 1024
+    
+    while( 1 ) :
+        
+        iframes = wave_ifile.readframes( frame_size )
         if not iframes:
             break
 
         data = np.fromstring( iframes, np.int16 )
 
+        end_time = start_time + frame_size
         frequency = autocorrelation_frequency( data, frame_rate )
         amplitude = fft_amplitude( data )
 
-        note.set_frequency( frequency )
-        note.set_amplitude( amplitude )
-   '''
+        note_ = note.Note( start_time, end_time, frequency, amplitude )
+        composition_.add_note( note_ )
+        
+        start_time += frame_size
+
+    wave_ifile.close()
+
+    return composition_
 
 if __name__ == "__main__" :
     scan( 'sound1.wav' )

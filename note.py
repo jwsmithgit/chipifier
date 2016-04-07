@@ -5,7 +5,7 @@ a note is a sound that is made for a duration of time at a certain frequency
 
 class Note :
     # CONSTRUCTOR
-    def __init__( self, start_time=-1, end_time=-1, frequency=-1, amplitude=-1, pwm=50.0 ) :
+    def __init__( self, start_time=-1, end_time=-1, frequency=-1, amplitude=-1, pwm=0.5 ) :
         self.start_time = start_time
         self.end_time = end_time
         self.frequency = frequency

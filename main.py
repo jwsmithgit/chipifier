@@ -5,8 +5,10 @@ import sonic_scanner
 import retro_conformer
 import wave_generator
 
-def output_to_file( var ) :
-    f = open( 'file.txt', 'w' )
+import pylab as pl
+
+def output_to_file( filename, var ) :
+    f = open( filename, 'w' )
     f.write( str(var) )
     f.close()
     return
@@ -51,7 +53,7 @@ if __name__ == "__main__" :
     args = parser.parse_args()
 
     # all the files to process frequencies
-    wave_files = [(1,'piano_sound.wav')]
+    wave_files = [(1,'br.wav')]
     if( args.allin ) :
         wave_files.append( (0, args.allin) )
 
@@ -73,16 +75,19 @@ if __name__ == "__main__" :
     for tup in wave_files :
         channel = tup[0]
         wave_file = tup[1]
-
-        #composition = sonic_scanner.beat_scan( wave_file )
-        #composition.detect_beats()
         
-        beats = sonic_scanner.beat_scan( wave_file )
-        #print( "Hello?" )
-        #print( beats )
-        composition = sonic_scanner.note_scan( wave_file, beats, channel )
-        #composition.notes = composition.beat_notes
-
+        #beats = sonic_scanner.beat_scan( wave_file )
+        #beats = sonic_scanner.onset_scan( wave_file )
+        #output_to_file( beats )
+        
+        #composition = sonic_scanner.note_scan( wave_file, beats, channel )
+        
+        composition = sonic_scanner.note_scan_old( wave_file, channel )
+        
+        composition.crush_notes( )
+        #composition.unify_notes()
+        #composition.high_pass_filter( 1000 )
+        
         if ( args.notesmooth ) :
             composition.unify_notes()
 
@@ -91,20 +96,25 @@ if __name__ == "__main__" :
 
         if ( args.lopass ) :
             composition.low_pass_filter( args.lopassval )
+        
 
-        composition.crush_notes( )
-
-        output_to_file( composition )
+        output_to_file( 'file.txt', composition )
         compositions.append( composition )
-
-    for composition in compositions:
-        if composition.channel == 1:
-            retro_conformer.split_composition_notes(composition)
-            composition_channel2 = copy.deepcopy(composition)
-            retro_conformer.reverb_composition(composition_channel2, 0.5, 100)
-            composition.append(composition_channel2)
-
+        
+    #for composition in compositions:
+        #if composition.channel == 1:
+            #retro_conformer.split_composition_notes(composition)
+            #composition_channel2 = copy.deepcopy(composition)
+            #composition_channel2.set_channel( 2 )
+            #composition_channel2 = retro_conformer.reverb_composition(composition_channel2, 0.5, 44100/5)
+            #compositions.append(composition_channel2)
+    
     # get notes for each file
+    waves = []
     for composition in compositions :
-
-        wave_generator.generate( composition )
+        waves.append( wave_generator.generate( composition ) )
+        
+    mix = wave_generator.mix_waves( waves )
+    params = (1, 2, 44100, len(mix), 'NONE', 'not compressed')
+    wave_generator.write_to_file(mix, 'chiptune.wav', params)
+    

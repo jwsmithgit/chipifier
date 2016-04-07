@@ -14,23 +14,27 @@ def split_composition_notes(composition):
 
 def get_pwn_val(x):
     if x == 0:
-        return 50.0
+        return .5
     if x == 1 or x == 3:
-        return 25.0
+        return .25
     if x == 2:
-        return 12.5
+        return .125
 
 def reverb_composition(composition, loudness_factor, delay):
-    for note in composition.notes:
-        delay_start = note.get_start_time() - delay
-        delay_end = note.get_end_time() - delay
-        if delay_start < 0:
-            composition.remove_note(note)
-        else:
-            note.set_start_time(delay_start)
-            note.set_end_time(delay_end)
-            note.set_amplitude( note.get_amplitude / loudness_factor )
-
+    note_ = note.Note(0, delay, 0, 0)
+    composition.notes.insert(0, note_)
+    
+    for note_ in composition.notes:
+        delay_start = note_.get_start_time() + delay
+        delay_end = note_.get_end_time() + delay
+        #if delay_start < 0:
+        #    composition.remove_note(note)
+        #else:
+        note_.set_start_time(delay_start)
+        note_.set_end_time(delay_end)
+        note_.set_amplitude( note_.get_amplitude() * loudness_factor )
+        
+    return composition
 
 if __name__ == "__main__" :
     print("NESMIDI")

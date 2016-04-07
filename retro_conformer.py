@@ -72,6 +72,44 @@ def kick_drum_line(composition, chopoff, drop_number):
                 new_note_list.append(note)
     composition.notes = new_note_list
 
+def single_channel_echo(composition):
+    new_note_list = []
+    previous_end = 0
+    ahead_note = Note()
+    for i, note in enumerate(composition.notes):
+        if i == 0 :
+            end = note.get_end_time() / 2
+            new_ampl = note.get_amplitude() / 2
+            new_note_list.append( Note(0, end, note.get_frequency(), note.get_amplitude) )
+            ahead_note = Note(0, 0, note.get_frequency(), new_ampl)
+            ahead_note.set_kick(True)
+            continue
+        else:
+            #set echo note
+            last_end = new_note_list[-1].get_end_time()
+            new_end = last_end + (ahead_note.get_start_time() - ahead_note.get_end_time()) / 2
+            ahead_note.set_end_time(new_end)
+            ahead_note.set_start_time(last_end)
+            ahead_note.set_kick(True)
+            ahead_note.set_amplitude( ahead_note.get_amplitude() / 2)
+            new_note_list.append(ahead_note)
+
+            #set note
+            last_end = new_end
+            new_end = last_end + (note.get_start_time() - note.get_end_time()) / 2
+            freq = note.get_frequency()
+            ampl = note.get_amplitude()
+            new_note_list.append(Note(last_end, new_end, freq, ampl))
+
+            ahead_note = note
+    composition.notes = new_notes_list
+
+
+
+
+
+
+
 
 
 

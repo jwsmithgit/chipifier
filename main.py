@@ -131,7 +131,7 @@ if __name__ == "__main__" :
 
         if composition.channel == 3:
             if ( args.mod == 3 ): 
-            retro_conformer.kick_drum_line(composition, 100, 10)
+                retro_conformer.kick_drum_line(composition, 100, 10)
     
     # get notes for each file
     waves = []

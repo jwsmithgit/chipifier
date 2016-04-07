@@ -65,7 +65,7 @@ class Composition :
         self.channel = channel
         self.tempo = -1
         self.notes = notes
-        self.scale = scale.get_scale( channel )
+        self.scale = scale.western_scale() #scale.get_scale( channel )
             
         '''self.raw_window_averages = [ ]
         self.beat_notes = [ ]
@@ -141,6 +141,28 @@ class Composition :
 
         for note in notes :
             note.set_frequency( new_frequency )
+            
+    def average_amplitude( self, notes ) :
+        amplitude = 0
+        for note in notes :
+            amplitude += note.get_amplitude()
+            
+        return amplitude/len(notes)
+            
+    def remove_duplicates( self ) :
+        notes = [ ]
+        
+        si = 0
+        for i, note_ in enumerate(self.notes[:-1]) :
+            if self.notes[i].get_frequency() != self.notes[i+1].get_frequency() :
+                ei = i+1
+                
+                amplitude = self.average_amplitude( self.notes[si:ei] )
+                notes.append( note.Note( self.notes[si].get_start_time(), self.notes[ei].get_start_time(), self.notes[si].get_frequency(), amplitude) )
+                
+                si = ei
+                
+        self.notes = notes
 
     def unify_notes( self ) :
         decreased = False
@@ -156,6 +178,8 @@ class Composition :
             else :
 
                 decreased = True
+                
+        self.remove_duplicates( )
 
     def high_pass_filter( self, gate ) :
         for i, note in enumerate(self.notes) :

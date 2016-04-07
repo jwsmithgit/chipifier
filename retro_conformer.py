@@ -20,11 +20,11 @@ def split_composition_notes(composition):
 
 def get_pwn_val(x):
     if x == 0:
-        return 50.0
+        return .5
     if x == 1 or x == 3:
-        return 25.0
+        return .25
     if x == 2:
-        return 12.5
+        return .125
 
 def reverb_composition(composition, loudness_factor, delay):
     for note in composition.notes:
@@ -58,9 +58,6 @@ def kick_drum_line(composition, chopoff, drop_number):
                 new_amplitude -= amplitude_decrease
                 drop_notes.append(note.Notes(drum_note_start, drum_note_end, drum_note_freq, drum_note_amplitude))
             
-
-
-
 
 if __name__ == "__main__" :
     print("NESMIDI")

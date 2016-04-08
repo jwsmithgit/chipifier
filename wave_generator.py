@@ -23,7 +23,7 @@ def pulse_wave( length, amplitude, period, duty_cycles = 0.5 ) :
     return t
 
 def triangle_wave( length, amplitude, period ) :
-    amplitude = amplitude * 2
+    #amplitude = amplitude * 2
     section = period // 4
     x = np.linspace(0, amplitude, section+1)
     mx = -x

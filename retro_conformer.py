@@ -90,7 +90,7 @@ def kick_drum_line(composition, chopoff, drop_number):
                 prev_note.set_end_time(slot_start_time)
 
                 increment = (slot_end_time - slot_start_time) / drop_number
-                new_ampl = note.get_amplitude() * 2
+                new_ampl = note.get_amplitude() * 1
                 amplitude_decrease =(new_ampl - note.get_amplitude()) / drop_number
 
                 scale = composition.get_scale()
@@ -135,7 +135,7 @@ def single_channel_echo(composition):
             last = new_note_list[-1].get_end_time()
             new_note_list.append(Note(last, last + ahead_real_duration, ahead_freq, ahead_ampl))
 
-            ahead_ampl = ampl / 2
+            ahead_ampl = ampl * 1/2
             ahead_freq = freq
             ahead_real_duration = (note.get_end_time() - note.get_start_time()) / 2
 

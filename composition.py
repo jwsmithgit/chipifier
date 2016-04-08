@@ -109,7 +109,7 @@ class Composition :
         decreased = False
         si = 0
         for i, note in enumerate(self.notes) :
-            if note.get_amplitude() > self.notes[i-1].get_amplitude() * 1.10 :
+            if self.notes[i].get_amplitude() > self.notes[i-1].get_amplitude() :#* 1.10 :
                 if decreased == True :
                     ei = i
                     self.merge_note_frequencies( self.notes[si:ei] )

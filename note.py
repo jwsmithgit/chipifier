@@ -11,7 +11,7 @@ class Note :
         self.frequency = frequency
         self.amplitude = amplitude
         self.pwm = pwm
-        self.kick_note = False
+        self.kick_note = True
 
     # SETTERS
     def set_start_time( self, start_time ) :

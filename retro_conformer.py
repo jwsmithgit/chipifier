@@ -5,6 +5,7 @@ Applying NES tricks to composition objects
 """
 
 import scale
+from composition import Composition
 from note import Note
 import utilities
 
@@ -16,17 +17,56 @@ def split_composition_notes(composition):
         for x in range(0,4):
             new_start = int(c_note.get_start_time() + x * increment)
             new_end =  int(c_note.get_start_time() + (x+1) * increment)
-            new_note = Note(new_start, new_end, c_note.get_frequency(), c_note.get_amplitude(),get_pwn_val(x))
+            new_note = Note(new_start, new_end, c_note.get_frequency(), c_note.get_amplitude(),get_pwm_val(x))
             pwm_notes.append(new_note)
     composition.notes = pwm_notes
 
-def get_pwn_val(x):
+def get_pwm_val(x):
     if x == 0:
         return .5
     if x == 1 or x == 3:
         return .25
     if x == 2:
         return .125
+        
+def pulse_width_mod( composition, pulse_width ) :
+    notes = composition.get_notes()
+    new_composition = Composition()
+    
+    final_end_time = notes[-1].get_end_time()
+    time = 0
+    pwm = 0
+    cni = 0 # composition note index
+    while time < final_end_time :
+        end_time = time + pulse_width
+        
+        while cni < len(notes) and notes[cni].get_end_time() < end_time :
+            note = Note()
+            note.set_start_time( time )
+            note.set_end_time( notes[cni].get_end_time() )
+            note.set_frequency( notes[cni].get_frequency() )
+            note.set_amplitude( notes[cni].get_amplitude() )
+            note.set_pwm( get_pwm_val( pwm ) )
+            
+            new_composition.add_note( note )
+            time += notes[cni].get_end_time() - notes[cni].get_start_time()
+            cni += 1
+            
+        if cni == len(notes) :
+            break
+        
+        note = Note()
+        note.set_start_time( time )
+        note.set_end_time( end_time )
+        note.set_frequency( notes[cni].get_frequency() )
+        note.set_amplitude( notes[cni].get_amplitude() )
+        note.set_pwm( get_pwm_val( pwm ) )
+        
+        new_composition.add_note( note )
+        time = end_time
+        pwm = (pwm + 1) % 4
+        
+    composition.set_notes( new_composition.get_notes() )
 
 def reverb_composition(composition, loudness_factor, delay):
     for note in composition.get_notes():

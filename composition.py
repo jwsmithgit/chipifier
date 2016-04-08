@@ -22,6 +22,9 @@ class Composition :
     def set_tempo( self, tempo ) :
         self.tempo = tempo
     
+    def set_notes( self, notes ) :
+        self.notes = notes
+        
     def set_scale( self, channel ) :
         self.scale = scale.get_scale( channel )
         

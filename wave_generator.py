@@ -23,6 +23,7 @@ def pulse_wave( length, amplitude, period, duty_cycles = 0.5 ) :
     return t
 
 def triangle_wave( length, amplitude, period ) :
+    amplitude = amplitude * 2
     section = period // 4
     x = np.linspace(0, amplitude, section+1)
     mx = -x
@@ -60,7 +61,7 @@ def noise_wave( length, amplitude, period, mode = 1 ) :
     if period > 200 :
         drum_amp = noise_amplitude( 0.8, len(t) )
     else :
-        drum_amp = noise_amplitude( 0.1, len(t) )
+        drum_amp = noise_amplitude( 0.2, len(t) )
     t = t*drum_amp
         
     '''if mode == 1 :

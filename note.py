@@ -57,8 +57,9 @@ class Note :
         string = '('
         string += 'start time: ' + str(self.get_start_time())
         string += ', end time: ' + str(self.get_end_time())
-        string += ', is_kick: ' + str(self.is_kick())
         string += ', frequency: ' + str(self.get_frequency())
         string += ', amplitude: ' + str(self.get_amplitude())
+        string += ', pwm: ' + str(self.get_pwm())
+        string += ', is_kick: ' + str(self.is_kick())
         string += ')'
         return string

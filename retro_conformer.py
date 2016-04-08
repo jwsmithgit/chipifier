@@ -9,7 +9,7 @@ from note import Note
 import utilities
 
 def split_composition_notes(composition):
-    notes = composition.notes
+    notes = composition.get_notes()
     pwm_notes = []
     for c_note in notes:
         increment = ( c_note.get_end_time() - c_note.get_start_time() ) / 4
@@ -29,7 +29,7 @@ def get_pwn_val(x):
         return .125
 
 def reverb_composition(composition, loudness_factor, delay):
-    for note in composition.notes:
+    for note in composition.get_notes():
         delay_start = note.get_start_time() - delay
         delay_end = note.get_end_time() - delay
         if delay_start < 0:
@@ -41,10 +41,8 @@ def reverb_composition(composition, loudness_factor, delay):
 
 def kick_drum_line(composition, chopoff, drop_number):
     new_note_list = []
-    for i, note in enumerate(composition.notes):
-        if i == 0:
-            continue
-        else:
+    for i, note in enumerate(composition.get_notes()):
+        if i != 0:
             if note.is_kick():
                 prev_note = composition.notes[i-1]
                 slot_start_time = prev_note.get_end_time() - chopoff
@@ -73,35 +71,35 @@ def kick_drum_line(composition, chopoff, drop_number):
 
 def single_channel_echo(composition):
     new_note_list = []
-    previous_end = 0
-    ahead_note = Note()
-    for i, note in enumerate(composition.notes):
+    ahead_freq = 0
+    ahead_ampl = 0
+    ahead_real_duration = 0
+    for i, note in enumerate(composition.get_notes()):
         if i == 0 :
-            end = note.get_end_time() / 2
-            new_ampl = note.get_amplitude() / 2
-            new_note_list.append( Note(0, end, note.get_frequency(), note.get_amplitude) )
-            ahead_note = Note(0, 0, note.get_frequency(), new_ampl)
-            ahead_note.set_kick(True)
-            continue
-        else:
-            #set echo note
-            last_end = new_note_list[-1].get_end_time()
-            new_end = last_end + (ahead_note.get_start_time() - ahead_note.get_end_time()) / 2
-            ahead_note.set_end_time(new_end)
-            ahead_note.set_start_time(last_end)
-            ahead_note.set_kick(True)
-            ahead_note.set_amplitude( ahead_note.get_amplitude() / 2)
-            new_note_list.append(ahead_note)
-
-            #set note
-            last_end = new_end
-            new_end = last_end + (note.get_start_time() - note.get_end_time()) / 2
-            freq = note.get_frequency()
             ampl = note.get_amplitude()
-            new_note_list.append(Note(last_end, new_end, freq, ampl))
+            freq = note.get_frequency()
+            start = 0
+            end = note.get_end_time() / 2
+            new_note_list.append(Note(start, end, freq, ampl))
 
-            ahead_note = note
-    composition.notes = new_notes_list
+            ahead_freq = freq
+            ahead_ampl = ampl / 2
+            ahead_real_duration = end
+        else:
+            ampl = note.get_amplitude()
+            freq = note.get_frequency()
+            start = new_note_list[-1].get_end_time()
+            end = start + (note.get_end_time() - note.get_start_time()) / 2
+            new_note_list.append(Note(start, end, freq, ampl))
+
+            last = new_note_list[-1].get_end_time()
+            new_note_list.append(Note(last, last + ahead_real_duration, ahead_freq, ahead_ampl))
+
+            ahead_ampl = ampl / 2
+            ahead_freq = freq
+            ahead_real_duration = (note.get_end_time() - note.get_start_time()) / 2
+
+    composition.notes = new_note_list
 
 
 if __name__ == "__main__" :

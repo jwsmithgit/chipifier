@@ -115,6 +115,8 @@ if __name__ == "__main__" :
     
     for composition in compositions:
         if composition.get_channel() == 1:
+            if 1 in args.echo :
+                retro_conformer.single_channel_echo(composition)
             if ( 1 in args.mod ) :
                 retro_conformer.split_composition_notes(composition)
             if ( args.reverb ) :
@@ -135,6 +137,8 @@ if __name__ == "__main__" :
         if composition.channel == 3:
             if ( args.mod == 3 ): 
                 retro_conformer.kick_drum_line(composition, 100, 10)
+            if 2 in args.echo:
+                retro_conformer.single_channel_echo(composition)
     
     # get notes for each file
     waves = []

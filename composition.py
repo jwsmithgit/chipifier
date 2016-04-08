@@ -110,10 +110,41 @@ class Composition :
         decreased = False
         si = 0
         for i, note in enumerate(self.notes) :
-            if note.get_amplitude() > self.notes[i-1].get_amplitude() * 1.10 :
+            if self.notes[i].get_amplitude() > self.notes[i-1].get_amplitude() :#* 1.10 :
                 if decreased == True :
                     ei = i
                     self.merge_note_frequencies( self.notes[si:ei] )
+                    si = i
+
+                    decreased = False
+            else :
+                decreased = True
+                
+        self.remove_duplicates( )
+        
+    
+    def better_unify_notes( self ) :
+        notes = self.get_notes()
+        decreased = False
+        si = 0
+        amplitudes = [ ]
+        average = 0
+        
+        for i, note in enumerate(notes) :
+        
+            average = average * len(amplitudes)
+            if ( len(amplitudes) == 10 ) :
+                average -= amplitudes[0]
+                amplitudes = amplitudes[1:]
+                
+            amplitudes.append( notes[i].get_amplitude() )
+            average += amplitudes[-1]
+            average = average / len(amplitudes)
+            
+            if notes[i].get_amplitude() > average:
+                if decreased == True :
+                    ei = i
+                    self.merge_note_frequencies( notes[si:ei] )
                     si = i
 
                     decreased = False
@@ -148,6 +179,7 @@ class Composition :
         for i, note in enumerate(self.notes) :
             if note.get_frequency() > limit :
                 note.set_frequency( limit )
+<<<<<<< HEAD
 
     #for random kicks (1/6 odds)
     def set_random_kicks( self ):
@@ -157,3 +189,10 @@ class Composition :
                 note.set_kick(True)
 
 
+=======
+                
+    def reverse_limiter( self, limit ) :
+        for i, note in enumerate(self.notes) :
+            if note.get_frequency() < limit :
+                note.set_frequency( limit )
+>>>>>>> origin/master

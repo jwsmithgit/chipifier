@@ -159,7 +159,7 @@ def single_channel_echo(composition):
             last = new_note_list[-1].get_end_time()
             new_note_list.append(Note(last, last + ahead_real_duration, ahead_freq, ahead_ampl))
 
-            ahead_ampl = ampl / 2
+            ahead_ampl = ampl * 1/2
             ahead_freq = freq
             ahead_real_duration = (note.get_end_time() - note.get_start_time()) / 2
 

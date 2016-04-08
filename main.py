@@ -56,8 +56,11 @@ if __name__ == "__main__" :
 
     # all the files to process frequencies
     #
-    wave_files = [(1,'sounds/l1.wav'),(2,'sounds/l2.wav'),(3,'sounds/b.wav'),(4,'sounds/d.wav')]
-    #wave_files = [(1,'real/gr.wav'),(2,'real/sr.wav'),(3,'real/br.wav'),(4,'real/dr.wav')]
+    #wave_files = [(1,'sounds/l1.wav'),(2,'sounds/l2.wav'),(3,'sounds/b.wav'),(4,'sounds/d.wav')]
+    wave_files = [(1,'real/gr.wav'),(2,'real/sr.wav'),(3,'real/br.wav'),(4,'real/dr.wav')]
+    #wave_files = [(1,'sounds/l1.wav')]
+    #wave_files = [(1,'real/ssgr.wav'),(2,'real/sssr.wav'),(3,'real/ssbr.wav'),(4,'real/ssdr.wav')]
+
     if( args.allin ) :
         wave_files.append( (0, args.allin) )
 
@@ -86,8 +89,9 @@ if __name__ == "__main__" :
             beats = sonic_scanner.beat_scan( wave_file )
             #print(beats)
             composition = sonic_scanner.note_scan( wave_file, beats, channel )
+            composition.reverse_limiter(110)
+            composition.limiter( 7040 )
             composition.crush_notes( )
-            composition.limiter( 880 )
             
             '''
             composition = Composition()
@@ -106,7 +110,7 @@ if __name__ == "__main__" :
         else :
             composition = sonic_scanner.basic_note_scan( wave_file, channel )
             composition.crush_notes( )
-            composition.unify_notes()
+            composition.better_unify_notes()
             composition.low_pass_filter( 1000 )
         
         '''
@@ -114,7 +118,6 @@ if __name__ == "__main__" :
         beats = sonic_scanner.onset_scan( wave_file )
         composition = sonic_scanner.note_scan( wave_file, beats, channel )
         '''
-        
         
         if ( args.notesmooth ) :
             composition.unify_notes()
@@ -130,14 +133,8 @@ if __name__ == "__main__" :
         compositions.append( composition )
     
     for composition in compositions:
-        composition.set_random_kicks()
-        print(composition)
-        retro_conformer.kick_drum_line(composition,10)
-        print("=========")
-        print(composition)
-        break
         if composition.get_channel() == 1:
-            if 1 in args.echo :
+            if ( 1 in args.echo ) :
                 retro_conformer.single_channel_echo(composition)
             if ( 1 in args.mod ) :
                 #retro_conformer.split_composition_notes(composition)
@@ -154,15 +151,17 @@ if __name__ == "__main__" :
                 compositions.append(composition_channel2)
                 
         if composition.get_channel() == 2:
+            if ( 2 in args.echo ) :
+                retro_conformer.single_channel_echo(composition)
             if ( 2 in args.mod ) :
                 #retro_conformer.split_composition_notes(composition)
                 retro_conformer.pulse_width_mod( composition, 44100/8 )
-            if 2 in args.echo:
-                retro_conformer.single_channel_echo(composition)
 
-        if composition.channel == 3:
-            if ( args.mod == 3 ): 
-                retro_conformer.kick_drum_line(composition, 100, 10)
+        if composition.get_channel() == 3:
+            if ( args.trikick ) : 
+                output_to_file( "c1", composition )
+                retro_conformer.kick_drum_line(composition, 44100/8, 32)
+                output_to_file( "c2", composition )
     
     # get notes for each file
     waves = []

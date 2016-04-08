@@ -23,7 +23,7 @@ def pulse_wave( length, amplitude, period, duty_cycles = 0.5 ) :
     return t
 
 def triangle_wave( length, amplitude, period ) :
-    #amplitude = amplitude * 2
+    amplitude = amplitude * 4
     section = period // 4
     x = np.linspace(0, amplitude, section+1)
     mx = -x
@@ -36,7 +36,7 @@ def triangle_wave( length, amplitude, period ) :
     return t
     
 def noise_amplitude( amp, length ) :
-    noise = np.linspace(amp, 0, 44100/8)
+    noise = np.linspace(amp, 0, 44100/4)
     if( len(noise) > length ) :
         noise = noise[:length]
         return noise
@@ -50,26 +50,31 @@ def noise_wave( length, amplitude, period, mode = 1 ) :
 
     #print( length )
     #period = 762
-
+    #print( period )
+    
     while len(t) < length :
         rcycle = random.randrange( math.floor(period) )
         x = np.linspace( amplitude, amplitude, rcycle )
         nx = np.linspace( -amplitude, -amplitude, period - rcycle )
         t = np.concatenate( (t, x, nx) )
     t = t[:length]
-
-    if period > 200 :
-        drum_amp = noise_amplitude( 0.8, len(t) )
-    else :
-        drum_amp = noise_amplitude( 0.2, len(t) )
-    t = t*drum_amp
-        
-    '''if mode == 1 :
+    
+    '''
+    if mode == 1 :
         t = np.random.choice( [0, amplitude], length )
     elif mode == 2 :
         t = np.random.choice( [0, amplitude], 93 )
         while len(t) < length :
-            t = np.concatenate( (t, t) )'''
+            t = np.concatenate( (t, t) )
+    '''
+
+    if period > 200 :
+        drum_amp = noise_amplitude( 0.4, len(t) )
+    elif period > 50 :
+        drum_amp = noise_amplitude( 0.8, len(t) )
+    else :
+        drum_amp = noise_amplitude( 0.2, len(t) )
+    t = t*drum_amp
 
     return t
 
@@ -135,7 +140,8 @@ if __name__ == "__main__" :
 
     s_wave = pulse_wave(44100*5, 10000, 1/(440/44100))
     t_wave = triangle_wave(44100*5, 10000, 1/(440/44100))
-    n_wave = noise_wave( 44100*5, 10000, 1/(440/44100) )
+    frequency = 2093
+    n_wave = noise_wave( 44100, 10000, 1/(frequency/44100) )
 
     params = (1, 2, 44100, len(n_wave), 'NONE', 'not compressed')
     write_to_file(s_wave, 'square.wav', params)

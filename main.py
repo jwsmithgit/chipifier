@@ -57,8 +57,9 @@ if __name__ == "__main__" :
     # all the files to process frequencies
     #
     #wave_files = [(1,'sounds/l1.wav'),(2,'sounds/l2.wav'),(3,'sounds/b.wav'),(4,'sounds/d.wav')]
-    #wave_files = [(1,'real/gr.wav'),(2,'real/sr.wav'),(3,'real/br.wav'),(4,'real/dr.wav')]
-    wave_files = [(1,'sounds/l1.wav')]
+    wave_files = [(1,'real/gr.wav'),(2,'real/sr.wav'),(3,'real/br.wav'),(4,'real/dr.wav')]
+    #wave_files = [(1,'sounds/l1.wav')]
+    #wave_files = [(1,'real/ssgr.wav'),(2,'real/sssr.wav'),(3,'real/ssbr.wav'),(4,'real/ssdr.wav')]
 
     if( args.allin ) :
         wave_files.append( (0, args.allin) )
@@ -88,8 +89,9 @@ if __name__ == "__main__" :
             beats = sonic_scanner.beat_scan( wave_file )
             #print(beats)
             composition = sonic_scanner.note_scan( wave_file, beats, channel )
+            composition.reverse_limiter(110)
+            composition.limiter( 7040 )
             composition.crush_notes( )
-            composition.limiter( 880 )
             
             '''
             composition = Composition()
@@ -108,7 +110,7 @@ if __name__ == "__main__" :
         else :
             composition = sonic_scanner.basic_note_scan( wave_file, channel )
             composition.crush_notes( )
-            composition.unify_notes()
+            composition.better_unify_notes()
             composition.low_pass_filter( 1000 )
         
         '''

@@ -120,6 +120,37 @@ class Composition :
                 decreased = True
                 
         self.remove_duplicates( )
+        
+    
+    def better_unify_notes( self ) :
+        notes = self.get_notes()
+        decreased = False
+        si = 0
+        amplitudes = [ ]
+        average = 0
+        
+        for i, note in enumerate(notes) :
+        
+            average = average * len(amplitudes)
+            if ( len(amplitudes) == 10 ) :
+                average -= amplitudes[0]
+                amplitudes = amplitudes[1:]
+                
+            amplitudes.append( notes[i].get_amplitude() )
+            average += amplitudes[-1]
+            average = average / len(amplitudes)
+            
+            if notes[i].get_amplitude() > average:
+                if decreased == True :
+                    ei = i
+                    self.merge_note_frequencies( notes[si:ei] )
+                    si = i
+
+                    decreased = False
+            else :
+                decreased = True
+                
+        self.remove_duplicates( )
 
     def high_pass_filter( self, gate ) :
         for i, note in enumerate(self.notes) :
@@ -146,4 +177,9 @@ class Composition :
     def limiter( self, limit ) :
         for i, note in enumerate(self.notes) :
             if note.get_frequency() > limit :
+                note.set_frequency( limit )
+                
+    def reverse_limiter( self, limit ) :
+        for i, note in enumerate(self.notes) :
+            if note.get_frequency() < limit :
                 note.set_frequency( limit )

@@ -13,6 +13,8 @@ import sys
 sys.path.append('./peakutils/')
 import peak as pk
 
+import utilities
+
 # create FFT estimation
 def fft_frequency( data, fs ) :
     windowed = data * sp.signal.hamming( len(data) )
@@ -172,8 +174,8 @@ def generalized_autocorrelation( frames ) :
     
 def enhance_harmonics( a1 ) :
     print( "creating enhanced harmonics..." )
-    a2 = np.repeat( autocorrelated, 2, axis=1 )
-    a4 = np.repeat( autocorrelated, 4, axis=1 )
+    a2 = np.repeat( a1, 2, axis=1 )
+    a4 = np.repeat( a1, 4, axis=1 )
     
     a2 = a2[:, :len(a1[0])]
     a4 = a4[:, :len(a1[0])]
@@ -224,10 +226,25 @@ def beat_scan( filename ) :
     #pl.show()
     
     #min_dist = 1024 * 344.5/44100 # one window
-    min_dist = 44100/16 * 344.5/44100 #160bpm max
-    peaks = pk.indexes( oss ,min_dist=min_dist ) 
+    min_dist = 44100/16 * (344.5/44100) #160bpm max
+    peaks = pk.indexes( oss, min_dist=min_dist ) 
     beats = peaks * 44100/344.5
+    #print( beats )
     beats = list(map(int, beats))
+    
+    '''
+    tempo = get_tempo(oss)
+    frame_tempo = 44100/(tempo/60)
+    timings = [frame_tempo]
+    while timings[-1] < beats[-1] :
+        timings.append( timings[-1] + timings[0] )
+        
+    tempo_beats = [ ]
+    for beat in beats :
+        tempo_beats.append( utilities.find_closest(timings, beat) )
+    tempo_beats = list(map(int, tempo_beats))
+    tempo_beats = list(set(tempo_beats))
+    '''
     
     return beats
     

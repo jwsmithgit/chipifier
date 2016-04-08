@@ -46,7 +46,7 @@ class Note :
     def get_amplitude( self ) :
         return self.amplitude
 
-    def get_pwn(self):
+    def get_pwm(self):
         return self.pwm
 
     def is_kick(self):

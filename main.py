@@ -7,6 +7,7 @@ import wave_generator
 import pylab as pl
 
 from composition import Composition
+from note import Note
 
 def output_to_file( filename, var ) :
     f = open( filename, 'w' )
@@ -55,8 +56,8 @@ if __name__ == "__main__" :
 
     # all the files to process frequencies
     #
-    wave_files = [(1,'sounds/l1.wav'),(2,'sounds/l2.wav'),(3,'sounds/b.wav'),(4,'sounds/d.wav')]
-    #wave_files = [(1,'real/gr.wav'),(2,'real/sr.wav'),(3,'real/br.wav'),(4,'real/dr.wav')]
+    #wave_files = [(1,'sounds/l1.wav'),(2,'sounds/l2.wav'),(3,'sounds/b.wav'),(4,'sounds/d.wav')]
+    wave_files = [(1,'real/gr.wav'),(2,'real/sr.wav'),(3,'real/br.wav'),(4,'real/dr.wav')]
     if( args.allin ) :
         wave_files.append( (0, args.allin) )
 
@@ -79,13 +80,28 @@ if __name__ == "__main__" :
         channel = tup[0]
         wave_file = tup[1]
         
-        
         #OSS
         if( channel == 4 ) :
+            
             beats = sonic_scanner.beat_scan( wave_file )
+            #print(beats)
             composition = sonic_scanner.note_scan( wave_file, beats, channel )
             composition.crush_notes( )
-            composition.limiter( 1000 )
+            composition.limiter( 880 )
+            
+            '''
+            composition = Composition()
+            composition.set_channel(4)
+            time = 0
+            while time < 44100*8 :
+                note = Note()
+                note.set_start_time(time)
+                note.set_end_time(time+44100)
+                note.set_frequency(34)
+                note.set_amplitude(50000)
+                composition.add_note(note)
+                time += 44100
+            '''
             
         else :
             composition = sonic_scanner.basic_note_scan( wave_file, channel )
@@ -125,7 +141,7 @@ if __name__ == "__main__" :
                 composition_channel2 = Composition()
                 composition_channel2.set_channel( 2 )
                 composition_channel2.add_notes( composition.get_notes() )
-                retro_conformer.reverb_composition(composition_channel2, 0.5, 44100/5)
+                retro_conformer.reverb_composition(composition_channel2, 0.5, 44100/4)
                 compositions.append(composition_channel2)
                 
         if composition.get_channel() == 2:
@@ -140,7 +156,7 @@ if __name__ == "__main__" :
     waves = []
     for composition in compositions :
         waves.append( wave_generator.generate( composition ) )
-        #print( len( waves ))
+        #print( len( waves[-1] ))
         #print( len(wave_generator.generate( composition )))
         #print( composition.notes[-1].get_end_time() )
         

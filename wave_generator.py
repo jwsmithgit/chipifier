@@ -35,7 +35,7 @@ def triangle_wave( length, amplitude, period ) :
     return t
     
 def noise_amplitude( amp, length ) :
-    noise = np.linspace(amp, 0, 44100/16)
+    noise = np.linspace(amp, 0, 44100/8)
     if( len(noise) > length ) :
         noise = noise[:length]
         return noise
@@ -47,6 +47,7 @@ def noise_amplitude( amp, length ) :
 def noise_wave( length, amplitude, period, mode = 1 ) :
     t = [ ]
 
+    #print( length )
     #period = 762
 
     while len(t) < length :
@@ -54,11 +55,12 @@ def noise_wave( length, amplitude, period, mode = 1 ) :
         x = np.linspace( amplitude, amplitude, rcycle )
         nx = np.linspace( -amplitude, -amplitude, period - rcycle )
         t = np.concatenate( (t, x, nx) )
+    t = t[:length]
 
-    if period > 50 :
-        drum_amp = noise_amplitude( 1, len(t) )
+    if period > 200 :
+        drum_amp = noise_amplitude( 0.8, len(t) )
     else :
-        drum_amp = noise_amplitude( 0.2, len(t) )
+        drum_amp = noise_amplitude( 0.1, len(t) )
     t = t*drum_amp
         
     '''if mode == 1 :
@@ -96,14 +98,14 @@ def generate( composition ) :
     channel = composition.get_channel()
     wave = [] #np.array([])
     for note in notes :
-        length = note.end_time - note.start_time
+        length = note.get_end_time() - note.get_start_time()
         period = 1/(note.get_frequency()/44100)
         
-        if note.frequency < 1 :
+        if note.get_frequency() < 1 :
             wave.extend( [0 for i in range(length)] )
         else :
             if channel == 1 or channel == 2 :
-                wave.extend( pulse_wave(length, note.get_amplitude(), period, note.pwm) )
+                wave.extend( pulse_wave(length, note.get_amplitude(), period, note.get_pwm()) )
             elif channel == 3 :
                 wave.extend( triangle_wave(length, note.get_amplitude(), period) )
             elif channel == 4 :
@@ -113,7 +115,7 @@ def generate( composition ) :
             wave = np.concatenate( (wave, np.zeros(length)) )
         else :
             if channel == 1 or channel == 2 :
-                wave = np.concatenate( (wave, pulse_wave(length, note.get_amplitude(), period, note.pwm) ) )
+                wave = np.concatenate( (wave, pulse_wave(length, note.get_amplitude(), period, note.get_pwm()) ) )
             elif channel == 3 :
                 wave = np.concatenate( (wave, triangle_wave(length, note.get_amplitude(), period) ) )
             elif channel == 4 :

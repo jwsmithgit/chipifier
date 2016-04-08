@@ -179,7 +179,6 @@ class Composition :
         for i, note in enumerate(self.notes) :
             if note.get_frequency() > limit :
                 note.set_frequency( limit )
-<<<<<<< HEAD
 
     #for random kicks (1/6 odds)
     def set_random_kicks( self ):
@@ -188,11 +187,8 @@ class Composition :
             if val == 4:
                 note.set_kick(True)
 
-
-=======
                 
     def reverse_limiter( self, limit ) :
         for i, note in enumerate(self.notes) :
             if note.get_frequency() < limit :
                 note.set_frequency( limit )
->>>>>>> origin/master

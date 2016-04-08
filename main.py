@@ -57,8 +57,8 @@ if __name__ == "__main__" :
     # all the files to process frequencies
     #
     #wave_files = [(1,'sounds/l1.wav'),(2,'sounds/l2.wav'),(3,'sounds/b.wav'),(4,'sounds/d.wav')]
-    wave_files = [(1,'real/gr.wav'),(2,'real/sr.wav'),(3,'real/br.wav'),(4,'real/dr.wav')]
-    #wave_files = [(1,'sounds/l1.wav')]
+    #wave_files = [(1,'real/gr.wav'),(2,'real/sr.wav'),(3,'real/br.wav'),(4,'real/dr.wav')]
+    wave_files = [(3,'sounds/b.wav')]
     #wave_files = [(1,'real/ssgr.wav'),(2,'real/sssr.wav'),(3,'real/ssbr.wav'),(4,'real/ssdr.wav')]
 
     if( args.allin ) :

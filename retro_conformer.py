@@ -9,12 +9,12 @@ from composition import Composition
 from note import Note
 import utilities
 
-def split_composition_notes(composition):
+def split_composition_notes(composition, split):
     notes = composition.get_notes()
     pwm_notes = []
     for c_note in notes:
-        increment = ( c_note.get_end_time() - c_note.get_start_time() ) / 4
-        for x in range(0,4):
+        increment = ( c_note.get_end_time() - c_note.get_start_time() ) / split
+        for x in range(0,split):
             new_start = int(c_note.get_start_time() + x * increment)
             new_end =  int(c_note.get_start_time() + (x+1) * increment)
             new_note = Note(new_start, new_end, c_note.get_frequency(), c_note.get_amplitude(),get_pwm_val(x))
@@ -22,11 +22,11 @@ def split_composition_notes(composition):
     composition.notes = pwm_notes
 
 def get_pwm_val(x):
-    if x == 0:
+    if x%4 == 0:
         return .5
-    if x == 1 or x == 3:
+    if x%4 == 1 or x%4 == 3:
         return .25
-    if x == 2:
+    if x%4 == 2:
         return .125
         
 def pulse_width_mod( composition, pulse_width ) :

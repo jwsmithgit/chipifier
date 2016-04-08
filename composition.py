@@ -7,6 +7,7 @@ import note
 from note import Note
 import scale
 import utilities
+import random
 
 class Composition :
     def __init__( self ) :
@@ -147,3 +148,12 @@ class Composition :
         for i, note in enumerate(self.notes) :
             if note.get_frequency() > limit :
                 note.set_frequency( limit )
+
+    #for random kicks (1/6 odds)
+    def set_random_kicks( self ):
+        for note in self.notes:
+            val = random.randint(1,6)
+            if val == 4:
+                note.set_kick(True)
+
+

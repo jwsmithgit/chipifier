@@ -130,6 +130,12 @@ if __name__ == "__main__" :
         compositions.append( composition )
     
     for composition in compositions:
+        composition.set_random_kicks()
+        print(composition)
+        retro_conformer.kick_drum_line(composition,10)
+        print("=========")
+        print(composition)
+        break
         if composition.get_channel() == 1:
             if 1 in args.echo :
                 retro_conformer.single_channel_echo(composition)

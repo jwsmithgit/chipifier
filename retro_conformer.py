@@ -79,35 +79,59 @@ def reverb_composition(composition, loudness_factor, delay):
             note.set_end_time(delay_end)
             note.set_amplitude( note.get_amplitude() * loudness_factor )
 
-def kick_drum_line(composition, chopoff, drop_number):
+
+def kick_drum_line(composition, drop_number):
     new_note_list = []
+    duration = 44100 / 16
+    drop_increment = duration / drop_number
+
     for i, note in enumerate(composition.get_notes()):
+        effect_start_time = note.get_start_time() - duration
+        effect_end_time = note.get_start_time()
+        if effect_start_time < 0 :
+            new_note_list.append(note)
+            continue
+
         if i != 0:
             if note.is_kick():
-                prev_note = composition.notes[i-1]
-                slot_start_time = prev_note.get_end_time() - chopoff
-                slot_end_time = note.get_start_time()
-                prev_note.set_end_time(slot_start_time)
+                rollback = 0
+                indices_in_notes_list = len(new_note_list) - 1
 
-                increment = (slot_end_time - slot_start_time) / drop_number
-                new_ampl = note.get_amplitude() * 2
-                amplitude_decrease =(new_ampl - note.get_amplitude()) / drop_number
+                #keep rolling back until "in drop time" notes are popped off
+                while True:
+                    last_note = new_note_list[-1]
+                    if last_note.get_start_time() > (last_note.get_end_time() - duration):
+                        new_note_list.pop()
+
+                    else:
+                        break
+
+                last_note = new_note_list[-1]
+                last_note.set_end_time(effect_start_time)
 
                 scale = composition.get_scale()
-                closest = utilities.find_closest(scale, composition.notes[i].get_frequency())
-                index = scale.index(closest) + 10
+                closest = utilities.find_closest(scale, last_note.get_frequency())
+                index = scale.index(closest) + drop_number
+                ampl = note.get_amplitude()
 
                 for x in range(0, drop_number):
-                    new_s_time = int(slot_start_time + x * increment)
-                    new_e_time = int(slot_start_time + (x+1) * increment)
+                    new_s_time = int(effect_start_time + x * drop_increment)
+                    new_e_time = int(effect_start_time + (x+1) * drop_increment)
                     new_freq = scale[index]
-                    new_note_list.append( Note(new_s_time, new_e_time, new_freq, new_ampl) )
-                    new_ampl -= amplitude_decrease
+
+                    nn = Note(new_s_time, new_e_time, new_freq, ampl)
+                    nn.set_kick(True)
+
+                    new_note_list.append(nn)
                     index -=1
+
                 new_note_list.append(note)
+                   
             else:
                 new_note_list.append(note)
+
     composition.notes = new_note_list
+
 
 def single_channel_echo(composition):
     new_note_list = []

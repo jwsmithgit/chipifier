@@ -64,12 +64,19 @@ class Composition :
     # sort by start times
     def sort_by_start_times( self ) :
         notes = sorted(self.notes, key = lambda note: int(note[0]))
+        
+    # set all notes to pulse width
+    def set_pulse_widths( self, pwm ) :
+        for note in self.notes :
+            note.set_pwm( pwm )
 
+    # set all notes to closest value in scale
     def crush_notes( self ) :
         for note in self.notes :
             closest = utilities.find_closest( self.scale, note.get_frequency() )
             note.set_frequency( closest )
 
+    # set list of notes to the most common frequency occurence
     def merge_note_frequencies( self, notes ) :
         if not notes :
             return
@@ -84,6 +91,7 @@ class Composition :
         for note in notes :
             note.set_frequency( new_frequency )
             
+    # get average amplitude of set of notes
     def average_amplitude( self, notes ) :
         amplitude = 0
         for note in notes :
@@ -91,6 +99,7 @@ class Composition :
             
         return amplitude/len(notes)
             
+    # remove adjacent notes of the same frequency and replaces with single note
     def remove_duplicates( self ) :
         notes = [ ]
         
@@ -106,11 +115,14 @@ class Composition :
                 
         self.notes = notes
 
+    # if note amplitude is more than last note amplitude
+    # grab all notes since last time that happened and considers that a note
+    # the notes are merged into a single note
     def unify_notes( self ) :
         decreased = False
         si = 0
         for i, note in enumerate(self.notes) :
-            if self.notes[i].get_amplitude() > self.notes[i-1].get_amplitude() :#* 1.10 :
+            if self.notes[i].get_amplitude() > self.notes[i-1].get_amplitude() :
                 if decreased == True :
                     ei = i
                     self.merge_note_frequencies( self.notes[si:ei] )
@@ -122,7 +134,9 @@ class Composition :
                 
         self.remove_duplicates( )
         
-    
+    # if note amplitude is more than last 10 notes average note amplitude
+    # grab all notes since last time that happened and considers that a note
+    # the notes are merged into a single note
     def better_unify_notes( self ) :
         notes = self.get_notes()
         decreased = False
@@ -153,6 +167,7 @@ class Composition :
                 
         self.remove_duplicates( )
 
+    # if note frequecny is less than gate frequency, set to previous note frequency
     def high_pass_filter( self, gate ) :
         for i, note in enumerate(self.notes) :
             if note.get_frequency() < gate :
@@ -164,6 +179,7 @@ class Composition :
 
                 note.set_frequency( frequency )
 
+    # if note frequecny is more than gate frequency, set to previous note frequency
     def low_pass_filter( self, gate ) :
         for i, note in enumerate(self.notes) :
             if note.get_frequency() > gate :
@@ -174,10 +190,17 @@ class Composition :
                     frequency = self.notes[i+1].get_frequency()
 
                 note.set_frequency( frequency )
-                
+               
+    # if note frequecny is more than limit frequency, set to limit frequency
     def limiter( self, limit ) :
         for i, note in enumerate(self.notes) :
             if note.get_frequency() > limit :
+                note.set_frequency( limit )
+    
+    # if note frequecny is less than limit frequency, set to limit frequency
+    def reverse_limiter( self, limit ) :
+        for i, note in enumerate(self.notes) :
+            if note.get_frequency() < limit :
                 note.set_frequency( limit )
 
     #for random kicks (1/6 odds)
@@ -186,9 +209,3 @@ class Composition :
             val = random.randint(1,6)
             if val == 4:
                 note.set_kick(True)
-
-                
-    def reverse_limiter( self, limit ) :
-        for i, note in enumerate(self.notes) :
-            if note.get_frequency() < limit :
-                note.set_frequency( limit )

@@ -23,7 +23,7 @@ def pulse_wave( length, amplitude, period, duty_cycles = 0.5 ) :
     return t
 
 def triangle_wave( length, amplitude, period ) :
-    amplitude = amplitude * 4
+    amplitude = amplitude
     section = period // 4
     x = np.linspace(0, amplitude, section+1)
     mx = -x
@@ -47,10 +47,6 @@ def noise_amplitude( amp, length ) :
 
 def noise_wave( length, amplitude, period, mode = 1 ) :
     t = [ ]
-
-    #print( length )
-    #period = 762
-    #print( period )
     
     while len(t) < length :
         rcycle = random.randrange( math.floor(period) )
@@ -97,26 +93,16 @@ def write_to_file( data, filename, params ):
     f.setparams( params )
     f.writeframes( data.astype(np.int16).tostring() )
 
-def generate( composition ) :
+def generate( composition, sampling_rate ) :
     print("generating wave...")
     
     notes = composition.get_notes()
     channel = composition.get_channel()
-    wave = [] #np.array([])
+    wave = np.array([])
     for note in notes :
         length = note.get_end_time() - note.get_start_time()
-        period = 1/(note.get_frequency()/44100)
+        period = 1/(note.get_frequency()/sampling_rate)
         
-        if note.get_frequency() < 1 :
-            wave.extend( [0 for i in range(length)] )
-        else :
-            if channel == 1 or channel == 2 :
-                wave.extend( pulse_wave(length, note.get_amplitude(), period, note.get_pwm()) )
-            elif channel == 3 :
-                wave.extend( triangle_wave(length, note.get_amplitude(), period) )
-            elif channel == 4 :
-                wave.extend( noise_wave(length, note.get_amplitude(), period) )
-        '''
         if note.frequency < 1 :
             wave = np.concatenate( (wave, np.zeros(length)) )
         else :
@@ -126,7 +112,7 @@ def generate( composition ) :
                 wave = np.concatenate( (wave, triangle_wave(length, note.get_amplitude(), period) ) )
             elif channel == 4 :
                 wave = np.concatenate( (wave, noise_wave(length, note.get_amplitude(), period) ) )
-        '''
+        
 
     return wave
 

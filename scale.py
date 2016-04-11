@@ -24,7 +24,6 @@ def nes_triangle_scale( ) :
         scale.append( cpu / ( 32 * ( i + 1 ) ) )
     return scale
 
-# TODO nes noise scale
 def nes_noise_scale( ) :
     cpu = 1789773
     scale = [ ]
@@ -34,26 +33,10 @@ def nes_noise_scale( ) :
     scale = 1/(scale/44100)
     return scale
 
-def get_scale( channel ) :
+def get_channel_scale( channel ) :
     if( channel == 1 or channel == 2 ) :
         return nes_pulse_scale( )
     elif( channel == 3 ) :
         return nes_triangle_scale( )
     elif( channel == 4 ) :
         return nes_noise_scale( )
-
-class Scale :
-    def __init__( self, scale ) :
-        self.scale = [ ]
-
-        if scale == "western" :
-            self.scale = western_scale()
-
-        elif scale == "pulse" :
-            self.scale = nes_pulse_scale()
-
-        elif scale == "triangle" :
-            self.scale = nes_triangle_scale()
-
-        elif scale == "noise" :
-            self.scale = nes_noise_scale()

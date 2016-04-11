@@ -9,6 +9,8 @@ from composition import Composition
 from note import Note
 import utilities
 
+# apply pulse modulation by splitting each note into a set amount
+# then apply each pulse width value to each
 def split_composition_notes(composition, split):
     notes = composition.get_notes()
     pwm_notes = []
@@ -21,6 +23,7 @@ def split_composition_notes(composition, split):
             pwm_notes.append(new_note)
     composition.notes = pwm_notes
 
+# pwm enumerator function
 def get_pwm_val(x):
     if x%4 == 0:
         return .5
@@ -28,7 +31,9 @@ def get_pwm_val(x):
         return .25
     if x%4 == 2:
         return .125
-        
+       
+# pulse width mod that rotates through pulse width for set amount of time
+# pulse width is changed over time and applied to whatever notes fall in that time
 def pulse_width_mod( composition, pulse_width ) :
     notes = composition.get_notes()
     new_composition = Composition()
@@ -68,6 +73,8 @@ def pulse_width_mod( composition, pulse_width ) :
         
     composition.set_notes( new_composition.get_notes() )
 
+# apply reverb to notes by creating new channel 2 composition
+# blank note at start, all notes are shifted by delay amount
 def reverb_composition(composition, loudness_factor, delay):
     for note in composition.get_notes():
         delay_start = note.get_start_time() - delay
@@ -79,10 +86,11 @@ def reverb_composition(composition, loudness_factor, delay):
             note.set_end_time(delay_end)
             note.set_amplitude( note.get_amplitude() * loudness_factor )
 
-
+# for each kick note in composition, cut off end of note before kick note
+# have the the frequency start high and descend to the beat note frequency
 def kick_drum_line(composition, drop_number):
     new_note_list = []
-    duration = 44100 / 16
+    duration = 44100 / 8
     drop_increment = duration / drop_number
 
     for i, note in enumerate(composition.get_notes()):
@@ -110,7 +118,7 @@ def kick_drum_line(composition, drop_number):
                 last_note.set_end_time(effect_start_time)
 
                 scale = composition.get_scale()
-                closest = utilities.find_closest(scale, last_note.get_frequency())
+                closest = utilities.find_closest(scale, note.get_frequency())
                 index = scale.index(closest) + drop_number
                 ampl = note.get_amplitude()
 
@@ -132,7 +140,7 @@ def kick_drum_line(composition, drop_number):
 
     composition.notes = new_note_list
 
-
+# echo by placing a smaller amplitude note after the note that comes after each note
 def single_channel_echo(composition):
     new_note_list = []
     ahead_freq = 0

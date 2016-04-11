@@ -202,10 +202,6 @@ def get_oss( filename ) :
     log_power_spectrum = get_log_power_spectrum( magnitude_spectrum )
     flux_frames = get_flux( magnitude_spectrum, log_power_spectrum )
     oss = apply_low_pass_filter(flux_frames)
-    #pl.plot(flux_frames[0:344*5])
-    #pl.show()
-    #pl.plot(oss[0:344*5])
-    #pl.show()
     
     return oss
     
@@ -219,22 +215,19 @@ def get_tempo( oss ) :
     
     return tempo
 
-def beat_scan( filename ) :
+def beat_scan( filename, sampling_rate ) :
     print( "detecting beats..." )
     oss = get_oss( filename )
-    #pl.plot(oss[0:344*5])
-    #pl.show()
     
-    #min_dist = 1024 * 344.5/44100 # one window
-    min_dist = 44100/16 * (344.5/44100) #160bpm max
+    #min_dist = 1024 * 344.5/sampling_rate # one window
+    min_dist = sampling_rate/16 * (344.5/sampling_rate) #160bpm max
     peaks = pk.indexes( oss, min_dist=min_dist ) 
-    beats = peaks * 44100/344.5
-    #print( beats )
+    beats = peaks * sampling_rate/344.5
     beats = list(map(int, beats))
     
     '''
     tempo = get_tempo(oss)
-    frame_tempo = 44100/(tempo/60)
+    frame_tempo = sampling_rate/(tempo/60)
     timings = [frame_tempo]
     while timings[-1] < beats[-1] :
         timings.append( timings[-1] + timings[0] )
@@ -348,39 +341,10 @@ def basic_note_scan( filename, channel ) :
 
     return composition
     
-def better_note_scan( filename, channel ) :
-    print( "detecting frequencies..." )
-    wave_ifile = wave.open( filename, 'r' )
-    print( wave_ifile.getparams())
-    frame_rate = wave_ifile.getframerate()
-    
-    composition = Composition()
-    composition.set_channel( channel )
-    start_time = 0
-    frame_size = 1024
-    
-    while( 1 ) :
-        
-        iframes = wave_ifile.readframes( frame_size )
-        if not iframes:
-            break
-
-        data = np.fromstring( iframes, np.int16 )
-
-        end_time = start_time + frame_size
-        frequency = autocorrelation_frequency( data, frame_rate )
-        amplitude = fft_amplitude( data )
-
-        note = Note( start_time, end_time, frequency, amplitude )
-        composition.add_note( note )
-        
-        start_time += frame_size
-
-    wave_ifile.close()
-
-    return composition
-    
 '''
+could be re implemented as better beat scan during file analysis
+currently exists in composition.py as better_unify_notes()
+
 def find_beat_locations( wave_window_averages_list ):
     beat_note_list = []
     count = 1;

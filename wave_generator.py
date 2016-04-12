@@ -10,10 +10,13 @@ import random
 def pulse_wave( length, amplitude, period, duty_cycles = 0.5 ) :
     section = period // ( 1 / duty_cycles )
     x = np.linspace(amplitude, amplitude, section)
-    mx = -x
+    
+    mx = np.linspace(-amplitude, -amplitude, period-section)
+    x = np.concatenate( (x, mx) )
 
-    for i in range( (int)( 1 / duty_cycles ) - 1 ) :
-        x = np.concatenate( (x, mx) )
+    #mx = -x
+    #for i in range( (int)( 1 / duty_cycles ) - 1 ) :
+    #    x = np.concatenate( (x, mx) )
 
     t = x
     while len(t) < length :
@@ -118,18 +121,19 @@ def generate( composition, sampling_rate ) :
 
 if __name__ == "__main__" :
     s_wave = np.array([])
-    t_wave = np.array([])
+    #t_wave = np.array([])
 
     for i in range(100,4000,10):
-        s_wave = np.concatenate( (s_wave, pulse_wave(44100/100, 10000, 1/(i/44100))) )
-        t_wave = np.concatenate( (t_wave, triangle_wave(44100/100, 10000, 1/(i/44100))) )
+        period = 1/(i/44100)
+        s_wave = np.concatenate( (s_wave, pulse_wave(44100/100, 10000, period, 0.5)) )
+        #t_wave = np.concatenate( (t_wave, triangle_wave(44100/100, 10000, 1/(i/44100))) )
 
     s_wave = pulse_wave(44100*5, 10000, 1/(440/44100))
-    t_wave = triangle_wave(44100*5, 10000, 1/(440/44100))
-    frequency = 2093
-    n_wave = noise_wave( 44100, 10000, 1/(frequency/44100) )
+    #t_wave = triangle_wave(44100*5, 10000, 1/(440/44100))
+    #frequency = 2093
+    #n_wave = noise_wave( 44100, 10000, 1/(frequency/44100) )
 
-    params = (1, 2, 44100, len(n_wave), 'NONE', 'not compressed')
+    params = (1, 2, 44100, len(s_wave), 'NONE', 'not compressed')
     write_to_file(s_wave, 'square.wav', params)
-    write_to_file(t_wave, 'triangle.wav', params)
-    write_to_file(n_wave, 'noise.wav', params)
+    #write_to_file(t_wave, 'triangle.wav', params)
+    #write_to_file(n_wave, 'noise.wav', params)

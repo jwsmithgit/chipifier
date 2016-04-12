@@ -36,7 +36,7 @@ def create_parser() :
     parser.add_argument('--arp', action="append", dest="arp", type=int, choices=(1,2), default=[], help="NOT YET SUPPORTED which lead will use arpeggio effect")
 
     parser.add_argument('--gendrums', action="store_true", dest="gendrums", help="NOT YET SUPPORTED generate drums")
-    parser.add_argument('--trikick', action="store_true", dest="trikick", help="NOT YET SUPPORTED use tringle wave for drum kick")
+    parser.add_argument('--trikick', action="store_true", dest="trikick", help="use tringle wave for drum kick")
 
     '''
     parser.add_argument('--polydetect', action="append", dest="polydetect", type=int, choices=(1,2,3,4), default=[], help="NOT YET SUPPORTED which instruments will use polyphonic detection")
@@ -60,26 +60,18 @@ if __name__ == "__main__" :
     parser = create_parser()
     args = parser.parse_args()
 
-<<<<<<< HEAD:chipifier.py
     # all the files to process
     # TESTERS to avoid typing
     #wave_files = [(1,'sounds/l1.wav'),(2,'sounds/l2.wav'),(3,'sounds/b.wav'),(4,'sounds/d.wav')]
     #wave_files = [(1,'sounds/l1.wav')]
     #wave_files = [(2,'sounds/l2.wav')]
-    wave_files = [(3,'sounds/b.wav')]
-    #wave_files = [(4,'sounds/d.wav')]
-=======
-    # all the files to process frequencies
-    #
-    wave_files = [(1,'sounds/l1.wav'),(2,'sounds/l2.wav'),(3,'sounds/b.wav'),(4,'sounds/d.wav')]
-    #wave_files = [(1,'real/gr.wav'),(2,'real/sr.wav'),(3,'real/br.wav'),(4,'real/dr.wav')]
     #wave_files = [(3,'sounds/b.wav')]
->>>>>>> origin/master:main.py
+    #wave_files = [(4,'sounds/d.wav')]
     #wave_files = [(1,'real/ssgr.wav'),(2,'real/sssr.wav'),(3,'real/ssbr.wav'),(4,'real/ssdr.wav')]
     #wave_files = [(1,'real/wabgr.wav'),(2,'real/wabsr.wav'),(3,'real/wabbr.wav'),(4,'real/wabdr.wav')]
     #wave_files = [(1,'real/40rgr.wav'),(2,'real/40rsr.wav'),(3,'real/40rbr.wav'),(4,'real/40rdr.wav')]
     
-    #wave_files = []
+    wave_files = []
 
     if( args.allin ) :
         wave_files.append( (0, args.allin) )
